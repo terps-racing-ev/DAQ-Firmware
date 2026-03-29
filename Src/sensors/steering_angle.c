@@ -1,6 +1,34 @@
-#include "sensors/steering_angle.h"
-#include "utils/can_manager.h"
+/**
+  ******************************************************************************
+  * @file           : steering_angle.c
+  * @brief          : Steering angle sensor reader implementation
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
 
+/* Includes ------------------------------------------------------------------*/
+#include "managers/can_manager.h"
+#include "sensors/steering_angle.h"
+
+/* Private Function Prototypes -----------------------------------------------*/
+static void SteeringAngle_PackData(SteeringAngle_Data_t* sa_data, CAN_Message_t* msg);
+
+/* Function Implementations --------------------------------------------------*/
+
+/**
+  * @brief  Initialize steering angle data
+  * @param  sa_data: Pointer to steering angle data structure
+  * @retval None
+  */
 void SteeringAngle_Init(SteeringAngle_Data_t* sa_data)
 {
 	ADC_Init(&sa_data->adc);
@@ -10,6 +38,12 @@ void SteeringAngle_Init(SteeringAngle_Data_t* sa_data)
 
 }
 
+/**
+  * @brief  Update steering angle value with new ADC read
+  * @param  sa_data: Pointer to steering angle data structure
+  * @param  adc_channel: ADC channel to read from
+  * @retval None
+  */
 void SteeringAngle_Update(SteeringAngle_Data_t* sa_data, uint32_t adc_channel)
 {
     sa_data->valid = false;
@@ -35,7 +69,13 @@ void SteeringAngle_Update(SteeringAngle_Data_t* sa_data, uint32_t adc_channel)
 
 }
 
-static void PackSAData(SteeringAngle_Data_t* sa_data, CAN_Message_t* msg)
+/**
+  * @brief  Pack steering angle data into CAN message
+  * @param  sa_data: Pointer to steering angle data structure
+  * @param  msg: Pointer to CAN message structure
+  * @retval None
+  */
+static void SteeringAngle_PackData(SteeringAngle_Data_t* sa_data, CAN_Message_t* msg)
 {
     msg->data[0] = sa_data->adc.adc_value & 0xFF;
     msg->data[1] = sa_data->adc.adc_value >> 8;
@@ -48,12 +88,18 @@ static void PackSAData(SteeringAngle_Data_t* sa_data, CAN_Message_t* msg)
 
 }
 
+/**
+  * @brief  Send steering angle data CAN message
+  * @param  sa_data: Pointer to steering angle data structure
+  * @param  can_id: CAN message ID
+  * @retval None
+  */
 void SteeringAngle_SendCAN(SteeringAngle_Data_t* sa_data, uint32_t can_id)
 {
 	CAN_Message_t msg;
 
 	msg.id = can_id;
-	PackSAData(sa_data, &msg);
+	SteeringAngle_PackData(sa_data, &msg);
 	CAN_SendMessage(&msg);
 
 }

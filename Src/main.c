@@ -22,8 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "utils/config_manager.h"
-#include "utils/can_manager.h"
+#include "managers/can_manager.h"
+#include "managers/config_manager.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

@@ -1,8 +1,30 @@
+/**
+  ******************************************************************************
+  * @file           : left_board.c
+  * @brief          : DAQ back left board configuration
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+
 /* Includes ------------------------------------------------------------------*/
+#include "managers/interrupt_manager.h"
 #include "boards/left_board.h"
-#include "utils/interrupt_manager.h"
 
 /* Function Implementations --------------------------------------------------*/
+
+/**
+  * @brief  Configure DAQ back left board sensor list and interrupts
+  * @retval None
+  */
 void DBL_Config(void)
 {
 	Sensor_t wsp_bl = {

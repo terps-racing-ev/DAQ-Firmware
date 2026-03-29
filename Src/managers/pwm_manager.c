@@ -1,19 +1,47 @@
-#include "pwm_manager.h"
+/**
+  ******************************************************************************
+  * @file           : pwm_manager.c
+  * @brief          : Rad PWM manager implementation
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+
+/* Includes ------------------------------------------------------------------*/
+#include "managers/pwm_manager.h"
 #include "cmsis_os.h"
 #include <stdbool.h>
 
+/* Private Variables ---------------------------------------------------------*/
+static const uint8_t TEMP_POINTS[] = {10, 22, 27, 30, 35, 45, 50}; // Temperature points in Celsius
+static const uint16_t PWM_VALUES[] = {0, 0, 256, 512, 768, 1023, 1023}; // Corresponding PWM values
+static const size_t NUM_POINTS = sizeof(TEMP_POINTS) / sizeof(TEMP_POINTS[0]);
+
+/* Private Function Prototypes -----------------------------------------------*/
+static int8_t PWM_GetInvTemp(void);
+static uint16_t PWM_CalculateValue(int8_t temp);
+
+/* Public Variables ----------------------------------------------------------*/
 bool PWM_ACTIVE = false;
 int8_t* INV_TEMP_PTR = NULL;
 int8_t inv_temp;
 osMutexId_t inv_temp_mutex = NULL;
 
-static const uint8_t TEMP_POINTS[] = {10, 22, 27, 30, 35, 45, 50}; // Temperature points in Celsius
-static const uint16_t PWM_VALUES[] = {0, 0, 256, 512, 768, 1023, 1023}; // Corresponding PWM values
-static const size_t NUM_POINTS = sizeof(TEMP_POINTS) / sizeof(TEMP_POINTS[0]);
+/* Function Implementations --------------------------------------------------*/
 
-static int8_t PWM_GetInvTemp(void);
-static uint16_t PWM_CalculateValue(int8_t temp);
-
+/**
+  * @brief  Main PWM manager task
+  * @param  argument: Not used
+  * @retval None
+  */
 void PWM_ManagerTask(void *argument)
 {
 	if (PWM_ACTIVE) {
@@ -43,6 +71,10 @@ void PWM_ManagerTask(void *argument)
 
 }
 
+/**
+  * @brief  Configure and start PWM output
+  * @retval None
+  */
 void PWM_Init(void)
 {
 	TIM_OC_InitTypeDef sConfigOC = {0};
@@ -93,6 +125,11 @@ void PWM_Init(void)
 
 }
 
+/**
+  * @brief  Set inverter temp
+  * @param  temp: Inverter temp to set
+  * @retval None
+  */
 void PWM_SetInvTemp(int8_t temp)
 {
 	osMutexAcquire(inv_temp_mutex, osWaitForever);
@@ -103,6 +140,10 @@ void PWM_SetInvTemp(int8_t temp)
 
 }
 
+/**
+  * @brief  Get inverter temp
+  * @retval Inverter temp
+  */
 static int8_t PWM_GetInvTemp(void)
 {
 	int32_t temp;
@@ -117,6 +158,11 @@ static int8_t PWM_GetInvTemp(void)
 
 }
 
+/**
+  * @brief  Calculate PWM value based on temp reading
+  * @param  temp: Inverter temp reading
+  * @retval PWM value (0-1023)
+  */
 static uint16_t PWM_CalculateValue(int8_t temp)
 {
 	uint16_t pwm_value;

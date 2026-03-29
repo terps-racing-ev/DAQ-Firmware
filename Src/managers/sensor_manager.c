@@ -1,9 +1,35 @@
-#include "sensor_manager.h"
-#include "cmsis_os.h"
-#include "pwm_manager.h"
+/**
+  ******************************************************************************
+  * @file           : sensor_manager.c
+  * @brief          : Sensor manager implementation
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
 
+/* Includes ------------------------------------------------------------------*/
+#include "managers/sensor_manager.h"
+#include "cmsis_os.h"
+#include "managers/pwm_manager.h"
+
+/* Public Variables ----------------------------------------------------------*/
 Sensor_t SensorList[MAX_NUM_SENSORS] = {0};
 
+/* Function Implementations --------------------------------------------------*/
+
+/**
+  * @brief  Main sensor manager task
+  * @param  argument: Not used
+  * @retval None
+  */
 void Sensor_ManagerTask(void *argument)
 {
 	uint32_t last_update_tick = 0;
@@ -41,6 +67,11 @@ void Sensor_ManagerTask(void *argument)
 	}
 }
 
+/**
+  * @brief  Initialize sensor data based on sensor type
+  * @param  sensor: Pointer to sensor structure
+  * @retval None
+  */
 void Sensor_Init(Sensor_t* sensor)
 {
 	switch (sensor->type) {
@@ -63,7 +94,14 @@ void Sensor_Init(Sensor_t* sensor)
 			WheelSpeed_Init(&sensor->wsp_data);
 			break;
 	}
+
 }
+
+/**
+  * @brief  Update sensor data based on sensor type
+  * @param  sensor: Pointer to sensor structure
+  * @retval None
+  */
 void Sensor_Update(Sensor_t* sensor)
 {
 	switch (sensor->type) {
@@ -89,7 +127,14 @@ void Sensor_Update(Sensor_t* sensor)
 			WheelSpeed_Update(&sensor->wsp_data);
 			break;
 	}
+
 }
+
+/**
+  * @brief  Send sensor CAN message based on sensor type
+  * @param  sensor: Pointer to sensor structure
+  * @retval None
+  */
 void Sensor_SendCAN(Sensor_t* sensor)
 {
 	switch (sensor->type) {
@@ -112,4 +157,5 @@ void Sensor_SendCAN(Sensor_t* sensor)
 			WheelSpeed_SendCAN(&sensor->wsp_data, sensor->can_id);
 			break;
 	}
+
 }

@@ -1,9 +1,26 @@
+/**
+  ******************************************************************************
+  * @file           : front_board.h
+  * @brief          : DAQ front board configuration
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+
 #ifndef FRONT_BOARD_H
 #define FRONT_BOARD_H
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "sensor_manager.h"
+#include "managers/sensor_manager.h"
 
 /* Defines -------------------------------------------------------------------*/
 #define DBF_BOARD_ID 				0x0A
@@ -30,6 +47,11 @@
 extern Sensor_t SensorList[MAX_NUM_SENSORS];
 
 /* Function Prototypes -------------------------------------------------------*/
+
+/**
+  * @brief  Configure DAQ front board sensor list and interrupts
+  * @retval None
+  */
 void DBF_Config(void);
 
 #endif // FRONT_BOARD_H

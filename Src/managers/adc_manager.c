@@ -1,8 +1,34 @@
-#include "utils/adc_manager.h"
+/**
+  ******************************************************************************
+  * @file           : adc_manager.c
+  * @brief          : ADC reading manager implementation
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
 
+/* Includes ------------------------------------------------------------------*/
+#include "managers/adc_manager.h"
+
+/* Private Function Prototypes -----------------------------------------------*/
 static HAL_StatusTypeDef ADC_ConfigureChannel(uint32_t adc_channel);
 static uint32_t ADC_CalculateVREF(void);
 
+/* Function Implementations --------------------------------------------------*/
+
+/**
+  * @brief  Initialize ADC data and moving average
+  * @param  adc_data: Pointer to ADC data structure
+  * @retval None
+  */
 void ADC_Init(ADC_Data_t* adc_data)
 {
 	adc_data->adc_value = 0;
@@ -13,6 +39,12 @@ void ADC_Init(ADC_Data_t* adc_data)
 
 }
 
+/**
+  * @brief  Update ADC data with new ADC value converted to raw and filtered mV
+  * @param  adc_data: Pointer to ADC data structure
+  * @param  adc_channel: ADC channel to read from
+  * @retval HAL_StatusTypeDef
+  */
 HAL_StatusTypeDef ADC_Update(ADC_Data_t* adc_data, uint32_t adc_channel)
 {
 	if (ADC_Read(adc_channel, &adc_data->adc_value) != HAL_OK) {
@@ -26,6 +58,11 @@ HAL_StatusTypeDef ADC_Update(ADC_Data_t* adc_data, uint32_t adc_channel)
 
 }
 
+/**
+  * @brief  Configure ADC channel
+  * @param  adc_channel: ADC channel to read from
+  * @retval HAL_StatusTypeDef
+  */
 static HAL_StatusTypeDef ADC_ConfigureChannel(uint32_t adc_channel)
 {
     ADC_ChannelConfTypeDef sConfig = {0};
@@ -41,6 +78,12 @@ static HAL_StatusTypeDef ADC_ConfigureChannel(uint32_t adc_channel)
 
 }
 
+/**
+  * @brief  Read ADC channel
+  * @param  adc_channel: ADC channel to read from
+  * @param  adc_value: Output pointer for ADC value
+  * @retval HAL_StatusTypeDef
+  */
 HAL_StatusTypeDef ADC_Read(uint32_t adc_channel, uint16_t* adc_value)
 {
     HAL_StatusTypeDef err;
@@ -58,7 +101,7 @@ HAL_StatusTypeDef ADC_Read(uint32_t adc_channel, uint16_t* adc_value)
     }
 
     // Wait for conversion to complete
-    err = HAL_ADC_PollForConversion(&hadc1, ADC_TIMEOUT);
+    err = HAL_ADC_PollForConversion(&hadc1, ADC_TIMEOUT_MS);
     if (err != HAL_OK) {
         return err;
     }
@@ -71,6 +114,10 @@ HAL_StatusTypeDef ADC_Read(uint32_t adc_channel, uint16_t* adc_value)
 
 }
 
+/**
+  * @brief  Calculate ADC reference voltage
+  * @retval Reference voltage in mV
+  */
 static uint32_t ADC_CalculateVREF(void)
 {
     uint16_t vref_adc_value;
@@ -84,6 +131,11 @@ static uint32_t ADC_CalculateVREF(void)
 
 }
 
+/**
+  * @brief  Convert ADC reading to sensor output voltage (pre-voltage divider)
+  * @param  adc_value: Raw ADC reading
+  * @retval Sensor output voltage in mV
+  */
 uint16_t ADC_ConvertToUnscaledMV(uint16_t adc_value)
 {
     uint32_t vref;

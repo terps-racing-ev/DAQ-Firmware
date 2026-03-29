@@ -1,9 +1,26 @@
+/**
+  ******************************************************************************
+  * @file           : right_board.h
+  * @brief          : DAQ back right board configuration
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+
 #ifndef RIGHT_BOARD_H
 #define RIGHT_BOARD_H
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "sensor_manager.h"
+#include "managers/sensor_manager.h"
 
 /* Defines -------------------------------------------------------------------*/
 #define DBR_BOARD_ID 			0x0C
@@ -31,6 +48,11 @@ extern bool PWM_ACTIVE;
 extern int8_t* INV_TEMP_PTR;
 
 /* Function Prototypes -------------------------------------------------------*/
+
+/**
+  * @brief  Configure DAQ back right board sensor list and interrupts, activate PWM
+  * @retval None
+  */
 void DBR_Config(void);
 
 #endif // RIGHT_BOARD_H

@@ -1,12 +1,41 @@
+/**
+  ******************************************************************************
+  * @file           : coolant_temp.c
+  * @brief          : Coolant temp sensor reader implementation
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+
+/* Includes ------------------------------------------------------------------*/
+#include "managers/can_manager.h"
 #include "sensors/coolant_temp.h"
-#include "utils/can_manager.h"
 #include <math.h>
 
-// Steinhart equation constants, see MATLAB file to adjust
+/* Private Variables ---------------------------------------------------------*/
+/* Steinhart Equation Constants (see MATLAB file to adjust) */
 static const float A = -0.0009123445192;
 static const float B = 0.0005229826803;
 static const float C = -0.0000007045640079;
 
+/* Private Function Prototypes -----------------------------------------------*/
+static void CoolantTemp_PackData(CoolantTemp_Data_t* ct_data, CAN_Message_t* msg);
+
+/* Function Implementations --------------------------------------------------*/
+
+/**
+  * @brief  Initialize coolant temp data
+  * @param  ct_data: Pointer to coolant temp data structure
+  * @retval None
+  */
 void CoolantTemp_Init(CoolantTemp_Data_t* ct_data)
 {
 	ADC_Init(&ct_data->adc);
@@ -16,6 +45,12 @@ void CoolantTemp_Init(CoolantTemp_Data_t* ct_data)
 
 }
 
+/**
+  * @brief  Update coolant temp value with new ADC read
+  * @param  ct_data: Pointer to coolant temp data structure
+  * @param  adc_channel: ADC channel to read from
+  * @retval None
+  */
 void CoolantTemp_Update(CoolantTemp_Data_t* ct_data, uint32_t adc_channel)
 {
     float resistance, lnr, tempC;
@@ -44,7 +79,13 @@ void CoolantTemp_Update(CoolantTemp_Data_t* ct_data, uint32_t adc_channel)
 
 }
 
-static void PackCTData(CoolantTemp_Data_t* ct_data, CAN_Message_t* msg)
+/**
+  * @brief  Pack coolant temp data into CAN message
+  * @param  ct_data: Pointer to coolant temp data structure
+  * @param  msg: Pointer to CAN message structure
+  * @retval None
+  */
+static void CoolantTemp_PackData(CoolantTemp_Data_t* ct_data, CAN_Message_t* msg)
 {
     msg->data[0] = ct_data->adc.adc_value & 0xFF;
     msg->data[1] = ct_data->adc.adc_value >> 8;
@@ -57,12 +98,18 @@ static void PackCTData(CoolantTemp_Data_t* ct_data, CAN_Message_t* msg)
 
 }
 
+/**
+  * @brief  Send coolant temp data CAN message
+  * @param  ct_data: Pointer to coolant temp data structure
+  * @param  can_id: CAN message ID
+  * @retval None
+  */
 void CoolantTemp_SendCAN(CoolantTemp_Data_t* ct_data, uint32_t can_id)
 {
 	CAN_Message_t msg;
 
 	msg.id = can_id;
-	PackCTData(ct_data, &msg);
+	CoolantTemp_PackData(ct_data, &msg);
 	CAN_SendMessage(&msg);
 
 }

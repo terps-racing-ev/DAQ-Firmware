@@ -1,19 +1,46 @@
-#include "utils/config_manager.h"
+/**
+  ******************************************************************************
+  * @file           : config_manager.c
+  * @brief          : DAQ board configuration manager implementation
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+
+/* Includes ------------------------------------------------------------------*/
+#include "managers/config_manager.h"
 #include "main.h"
 #include "cmsis_os.h"
 #include "boards/front_board.h"
 #include "boards/left_board.h"
 #include "boards/right_board.h"
 
+/* Private Variables ---------------------------------------------------------*/
 static osMutexId_t config_mutex = NULL;
 static uint8_t BOARD_ID = 0;
 
-uint8_t NUM_SENSORS = 0;
-uint32_t STATUS_CAN_ID = 0;
-
+/* Private Function Prototypes -----------------------------------------------*/
 static uint8_t Config_ReadBoardIDFromFlash(void);
 static int8_t Config_WriteBoardIDToFlash(uint8_t board_id);
 
+/* Public Variables ----------------------------------------------------------*/
+uint8_t NUM_SENSORS = 0;
+uint32_t STATUS_CAN_ID = 0;
+
+/* Function Implementations --------------------------------------------------*/
+
+/**
+  * @brief  Configure board based on board ID read from flash
+  * @retval None
+  */
 void Config_Init(void)
 {
     // Create mutex for thread-safe access
@@ -48,6 +75,11 @@ void Config_Init(void)
     }
 }
 
+/**
+  * @brief  Set board ID
+  * @param  new_board_id: board ID to set
+  * @retval 0 if successful, -1 if error
+  */
 int8_t Config_SetBoardID(uint8_t new_board_id)
 {
 	// Validate board ID range
@@ -67,6 +99,10 @@ int8_t Config_SetBoardID(uint8_t new_board_id)
 
 }
 
+/**
+  * @brief  Get board ID
+  * @retval Current board ID
+  */
 uint8_t Config_GetBoardID(void)
 {
     uint8_t id;
@@ -86,6 +122,10 @@ uint8_t Config_GetBoardID(void)
 
 }
 
+/**
+  * @brief  Read board ID from flash
+  * @retval Current board ID (or default if not set)
+  */
 static uint8_t Config_ReadBoardIDFromFlash(void)
 {
     // Read 32-bit word from flash
@@ -106,6 +146,11 @@ static uint8_t Config_ReadBoardIDFromFlash(void)
     return CONFIG_BOARD_ID_DEFAULT;
 }
 
+/**
+  * @brief  Write board ID to flash
+  * @param  board_id: Board ID to write
+  * @retval 0 if successful, -1 if error
+  */
 static int8_t Config_WriteBoardIDToFlash(uint8_t board_id)
 {
     HAL_StatusTypeDef status;

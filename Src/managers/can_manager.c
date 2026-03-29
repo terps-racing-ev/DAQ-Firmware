@@ -1,16 +1,43 @@
-#include "utils/can_manager.h"
-#include "utils/config_manager.h"
-#include "cmsis_os.h"
+/**
+  ******************************************************************************
+  * @file           : can_manager.c
+  * @brief          : CAN bus manager implementation
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
 
+/* Includes ------------------------------------------------------------------*/
+#include "managers/can_manager.h"
+#include "cmsis_os.h"
+#include "managers/config_manager.h"
+
+/* Private Variables ---------------------------------------------------------*/
 osMessageQueueId_t CANTxQueueHandle = NULL;
 osMessageQueueId_t CANRxQueueHandle = NULL;
 
+/* Private Function Prototypes -----------------------------------------------*/
 static uint32_t CAN_GetNotificationFlags(void);
 static void CAN_ProcessRxMessage(CAN_Message_t *msg);
 static void CAN_ProcessTxQueue(void);
 static HAL_StatusTypeDef CAN_TxMessage(CAN_Message_t* msg);
 static HAL_StatusTypeDef CAN_SendHeartbeat(void);
 
+/* Function Implementations --------------------------------------------------*/
+
+/**
+  * @brief  Main CAN manager task
+  * @param  argument: Not used
+  * @retval None
+  */
 void CAN_ManagerTask(void *argument)
 {
     CAN_Message_t rx_msg;
@@ -46,6 +73,10 @@ void CAN_ManagerTask(void *argument)
     }
 }
 
+/**
+  * @brief  Initialize CAN manager
+  * @retval HAL_StatusTypeDef
+  */
 HAL_StatusTypeDef CAN_Manager_Init(void)
 {
     // Create TX message queue
@@ -72,6 +103,11 @@ HAL_StatusTypeDef CAN_Manager_Init(void)
 
 }
 
+/**
+  * @brief  Add message to TX queue
+  * @param  msg: Pointer to CAN message
+  * @retval HAL_StatusTypeDef
+  */
 HAL_StatusTypeDef CAN_SendMessage(CAN_Message_t* msg)
 {
     // Add to TX queue (non-blocking with timeout in ms)
@@ -83,6 +119,10 @@ HAL_StatusTypeDef CAN_SendMessage(CAN_Message_t* msg)
 
 }
 
+/**
+  * @brief  Get full notification mask used by CAN manager
+  * @retval Notification bitmask
+  */
 static uint32_t CAN_GetNotificationFlags(void)
 {
     return (CAN_IT_RX_FIFO0_MSG_PENDING |
@@ -95,6 +135,11 @@ static uint32_t CAN_GetNotificationFlags(void)
 
 }
 
+/**
+  * @brief  Process message from RX queue
+  * @param  msg: Pointer to CAN message
+  * @retval None
+  */
 static void CAN_ProcessRxMessage(CAN_Message_t *msg)
 {
 	// Check for configuration command message
@@ -104,6 +149,10 @@ static void CAN_ProcessRxMessage(CAN_Message_t *msg)
 
 }
 
+/**
+  * @brief  Transmit messages in TX queue
+  * @retval None
+  */
 static void CAN_ProcessTxQueue(void)
 {
     CAN_Message_t msg;
@@ -116,6 +165,11 @@ static void CAN_ProcessTxQueue(void)
 
 }
 
+/**
+  * @brief  Transmit single message to CAN hardware
+  * @param  msg: Pointer to CAN message
+  * @retval HAL_StatusTypeDef
+  */
 static HAL_StatusTypeDef CAN_TxMessage(CAN_Message_t* msg) {
     CAN_TxHeaderTypeDef header;
     uint32_t mailbox;
@@ -136,6 +190,10 @@ static HAL_StatusTypeDef CAN_TxMessage(CAN_Message_t* msg) {
 
 }
 
+/**
+  * @brief  Send heartbeat message
+  * @retval HAL_StatusTypeDef
+  */
 static HAL_StatusTypeDef CAN_SendHeartbeat(void)
 {
     CAN_Message_t msg = {0};
@@ -145,6 +203,11 @@ static HAL_StatusTypeDef CAN_SendHeartbeat(void)
 
 }
 
+/**
+  * @brief  CAN RX FIFO 0 message pending callback
+  * @param  hcan: Pointer to CAN handle
+  * @retval None
+  */
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
 	CAN_RxHeaderTypeDef RxHeader;
@@ -161,7 +224,11 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
 }
 
-
+/**
+  * @brief  CAN RX FIFO 1 message pending callback
+  * @param  hcan: Pointer to CAN handle
+  * @retval None
+  */
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
 	CAN_RxHeaderTypeDef RxHeader;

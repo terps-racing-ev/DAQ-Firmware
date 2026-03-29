@@ -1,10 +1,39 @@
+/**
+  ******************************************************************************
+  * @file           : pitot_tube.c
+  * @brief          : Pitot tube reader implementation
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+
+/* Includes ------------------------------------------------------------------*/
+#include "managers/can_manager.h"
 #include "sensors/pitot_tube.h"
-#include "utils/can_manager.h"
 #include <math.h>
 
+/* Private Variables ---------------------------------------------------------*/
 static const float AIR_DENSITY = 1.225;
 static const float M_PER_S_TO_MPH = 2.23694;
 
+/* Private Function Prototypes -----------------------------------------------*/
+static void PitotTube_PackData(PitotTube_Data_t* pitot_data, CAN_Message_t* msg);
+
+/* Function Implementations --------------------------------------------------*/
+
+/**
+  * @brief  Initialize pitot tube data
+  * @param  pitot_data: Pointer to pitot tube data structure
+  * @retval None
+  */
 void PitotTube_Init(PitotTube_Data_t* pitot_data)
 {
     ADC_Init(&pitot_data->adc);
@@ -16,6 +45,12 @@ void PitotTube_Init(PitotTube_Data_t* pitot_data)
 
 }
 
+/**
+  * @brief  Update pitot tube value with new ADC read
+  * @param  pitot_data: Pointer to pitot tube data structure
+  * @param  adc_channel: ADC channel to read from
+  * @retval None
+  */
 void PitotTube_Update(PitotTube_Data_t* pitot_data, uint32_t adc_channel)
 {
     uint16_t adc_zero_point;
@@ -53,7 +88,13 @@ void PitotTube_Update(PitotTube_Data_t* pitot_data, uint32_t adc_channel)
 
 }
 
-static void PackPitotData(PitotTube_Data_t* pitot_data, CAN_Message_t* msg)
+/**
+  * @brief  Pack pitot tube temp data into CAN message
+  * @param  pitot_data: Pointer to pitot tube data structure
+  * @param  msg: Pointer to CAN message structure
+  * @retval None
+  */
+static void PitotTube_PackData(PitotTube_Data_t* pitot_data, CAN_Message_t* msg)
 {
     msg->data[0] = pitot_data->adc.adc_value & 0xFF;
     msg->data[1] = pitot_data->adc.adc_value >> 8;
@@ -66,12 +107,18 @@ static void PackPitotData(PitotTube_Data_t* pitot_data, CAN_Message_t* msg)
 
 }
 
+/**
+  * @brief  Send pitot tube data CAN message
+  * @param  pitot_data: Pointer to pitot tube data structure
+  * @param  can_id: CAN message ID
+  * @retval None
+  */
 void PitotTube_SendCAN(PitotTube_Data_t* pitot_data, uint32_t can_id)
 {
 	CAN_Message_t msg;
 
 	msg.id = can_id;
-    PackPitotData(pitot_data, &msg);
+	PitotTube_PackData(pitot_data, &msg);
     CAN_SendMessage(&msg);
 
 }
