@@ -19,9 +19,8 @@
 #define COOLANT_TEMP_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "sensor_types.h"
+#include "sensor_defs.h"
 #include "managers/adc_manager.h"
-#include <stdbool.h>
 
 /* Defines -------------------------------------------------------------------*/
 #define CT_PULLUP_RESISTOR 1000
@@ -35,10 +34,7 @@ typedef struct {
 
     ct_type temp;
 
-    bool valid;
-
-    bool adc_err;
-    bool out_of_range;
+    uint8_t error_flags;
 
 } CoolantTemp_Data_t;
 

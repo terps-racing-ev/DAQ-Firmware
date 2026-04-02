@@ -41,7 +41,6 @@ void WheelSpeed_Init(WheelSpeed_Data_t* wsp_data)
 
     wsp_data->rpm = 0;
     wsp_data->mph = 0;
-    wsp_data->valid = false;
 
 }
 
@@ -56,18 +55,16 @@ void WheelSpeed_Update(WheelSpeed_Data_t* wsp_data)
 	uint32_t now;
 	uint32_t avg_delta;
 
-    wsp_data->valid = false;
+    wsp_data->error_flags = 0;
 
     last_pulse_time = Interrupt_GetLastPulseTime(&wsp_data->interrupt);
 
     now = __HAL_TIM_GET_COUNTER(&htim2);
     if (now - last_pulse_time > WSP_TIMEOUT_US) {
         Interrupt_Reset(&wsp_data->interrupt);
-        wsp_data->timeout = true;
+        wsp_data->error_flags |= ERROR_TIMEOUT;
         return;
     }
-
-    wsp_data->valid = true;
 
     avg_delta = Interrupt_GetAverageDelta(&wsp_data->interrupt);
 
@@ -88,14 +85,13 @@ static void WheelSpeed_PackData(WheelSpeed_Data_t* wsp_data, CAN_Message_t* msg)
 {
     uint32_t avg_delta = Interrupt_GetAverageDelta(&wsp_data->interrupt);
 
-	msg->data[0] = avg_delta & 0xFF;
-    msg->data[1] = (avg_delta >> 8) & 0xFF;
-    msg->data[2] = (avg_delta >> 16) & 0xFF;
-    msg->data[3] = avg_delta >> 24;
-    msg->data[4] = wsp_data->rpm & 0xFF;
-    msg->data[5] = wsp_data->rpm >> 8;
-    msg->data[6] = wsp_data->mph & 0xFF;
-    msg->data[7] = wsp_data->mph >> 8;
+    msg->data[0] = wsp_data->error_flags;
+	msg->data[1] = avg_delta & 0xFF;
+    msg->data[2] = (avg_delta >> 8) & 0xFF;
+    msg->data[3] = (avg_delta >> 16) & 0xFF;
+    msg->data[4] = avg_delta >> 24;
+    msg->data[5] = wsp_data->mph & 0xFF;
+    msg->data[6] = wsp_data->mph >> 8;
 
 }
 

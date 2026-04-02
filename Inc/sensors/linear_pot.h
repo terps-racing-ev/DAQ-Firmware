@@ -19,9 +19,8 @@
 #define LINEAR_POT_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "sensor_types.h"
+#include "sensor_defs.h"
 #include "managers/adc_manager.h"
-#include <stdbool.h>
 
 /* Defines -------------------------------------------------------------------*/
 #define LP_MAX_RANGE 500 // mm*10
@@ -33,9 +32,7 @@ typedef struct {
 
     lp_type dist_scaled;
 
-    bool valid;
-
-    bool adc_err;
+    uint8_t error_flags;
 
 } LinearPot_Data_t;
 

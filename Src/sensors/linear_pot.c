@@ -34,7 +34,6 @@ void LinearPot_Init(LinearPot_Data_t* lp_data)
 	ADC_Init(&lp_data->adc);
 
     lp_data->dist_scaled = 0;
-    lp_data->valid = false;
 
 }
 
@@ -46,15 +45,12 @@ void LinearPot_Init(LinearPot_Data_t* lp_data)
   */
 void LinearPot_Update(LinearPot_Data_t* lp_data, uint32_t adc_channel)
 {
-    lp_data->valid = false;
-    lp_data->adc_err = false;
+    lp_data->error_flags = 0;
 
     if (ADC_Update(&lp_data->adc, adc_channel) != HAL_OK) {
-        lp_data->adc_err = true;
+        lp_data->error_flags |= ERROR_ADC_ERR;
         return;
     }
-
-    lp_data->valid = true;
 
     lp_data->dist_scaled = (lp_type) ((uint32_t)lp_data->adc.filt_mv * LP_MAX_RANGE / SUPPLY_VOLTAGE);
 
@@ -68,14 +64,14 @@ void LinearPot_Update(LinearPot_Data_t* lp_data, uint32_t adc_channel)
   */
 static void LinearPot_PackData(LinearPot_Data_t* lp_data, CAN_Message_t* msg)
 {
-    msg->data[0] = lp_data->adc.adc_value & 0xFF;
-    msg->data[1] = lp_data->adc.adc_value >> 8;
-    msg->data[2] = lp_data->adc.raw_mv & 0xFF;
-    msg->data[3] = lp_data->adc.raw_mv >> 8;
-    msg->data[4] = lp_data->adc.filt_mv & 0xFF;
-    msg->data[5] = lp_data->adc.filt_mv >> 8;
-    msg->data[6] = lp_data->dist_scaled & 0xFF;
-    msg->data[7] = lp_data->dist_scaled >> 8;
+    msg->data[0] = lp_data->error_flags;
+    msg->data[1] = lp_data->adc.raw_mv & 0xFF;
+    msg->data[2] = lp_data->adc.raw_mv >> 8;
+    msg->data[3] = lp_data->adc.filt_mv & 0xFF;
+    msg->data[4] = lp_data->adc.filt_mv >> 8;
+    msg->data[5] = lp_data->dist_scaled & 0xFF;
+    msg->data[6] = lp_data->dist_scaled >> 8;
+
 }
 
 /**

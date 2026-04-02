@@ -41,7 +41,6 @@ void CoolantTemp_Init(CoolantTemp_Data_t* ct_data)
 	ADC_Init(&ct_data->adc);
 
     ct_data->temp = 0;
-    ct_data->valid = false;
 
 }
 
@@ -55,21 +54,17 @@ void CoolantTemp_Update(CoolantTemp_Data_t* ct_data, uint32_t adc_channel)
 {
     float resistance, lnr, tempC;
 
-    ct_data->valid = false;
-    ct_data->out_of_range = false;
-    ct_data->adc_err = false;
+    ct_data->error_flags = 0;
 
     if (ADC_Update(&ct_data->adc, adc_channel) != HAL_OK) {
-        ct_data->adc_err = true;
+        ct_data->error_flags |= ERROR_ADC_ERR;
         return;
     }
 
     if (ct_data->adc.filt_mv < CT_MIN_MV || ct_data->adc.filt_mv > CT_MAX_MV) {
-        ct_data->out_of_range = true;
+        ct_data->error_flags |= ERROR_OUT_OF_RANGE;
         return;
     }
-
-    ct_data->valid = true;
 
     resistance = (float)ct_data->adc.filt_mv * CT_PULLUP_RESISTOR / (SUPPLY_VOLTAGE - (float)ct_data->adc.filt_mv);
     lnr = log(resistance);
@@ -87,13 +82,13 @@ void CoolantTemp_Update(CoolantTemp_Data_t* ct_data, uint32_t adc_channel)
   */
 static void CoolantTemp_PackData(CoolantTemp_Data_t* ct_data, CAN_Message_t* msg)
 {
-    msg->data[0] = ct_data->adc.adc_value & 0xFF;
-    msg->data[1] = ct_data->adc.adc_value >> 8;
-    msg->data[2] = ct_data->adc.raw_mv & 0xFF;
-    msg->data[3] = ct_data->adc.raw_mv >> 8;
-    msg->data[4] = ct_data->adc.filt_mv & 0xFF;
-    msg->data[5] = ct_data->adc.filt_mv >> 8;
-    msg->data[6] = ct_data->temp;
+    msg->data[0] = ct_data->error_flags;
+    msg->data[1] = ct_data->adc.raw_mv & 0xFF;
+    msg->data[2] = ct_data->adc.raw_mv >> 8;
+    msg->data[3] = ct_data->adc.filt_mv & 0xFF;
+    msg->data[4] = ct_data->adc.filt_mv >> 8;
+    msg->data[5] = ct_data->temp;
+    msg->data[6] = 0;
     msg->data[7] = 0;
 
 }

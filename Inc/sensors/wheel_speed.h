@@ -24,9 +24,8 @@
 #define WHEEL_SPEED_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "sensor_types.h"
+#include "sensor_defs.h"
 #include "managers/interrupt_manager.h"
-#include <stdbool.h>
 
 /* Defines -------------------------------------------------------------------*/
 #define WSP_ROLLING_RADIUS 9 // Inches
@@ -41,9 +40,7 @@ typedef struct {
     wsp_type rpm;
     wsp_type mph;
 
-    bool valid;
-
-    bool timeout;
+    uint8_t error_flags;
 
 } WheelSpeed_Data_t;
 
