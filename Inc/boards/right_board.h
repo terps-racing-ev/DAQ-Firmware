@@ -24,7 +24,7 @@
 
 /* Defines -------------------------------------------------------------------*/
 #define DBR_BOARD_ID 			0x0C
-#define DBR_NUM_SENSORS 		6
+#define DBR_NUM_SENSORS 		5
 
 /* Pinout --------------------------------------------------------------------*/
 #define WSP_BR_GPIO_PIN 	 	GPIO_PIN_0

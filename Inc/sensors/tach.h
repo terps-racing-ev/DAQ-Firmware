@@ -24,7 +24,7 @@
 #include <stdbool.h>
 
 /* Defines -------------------------------------------------------------------*/
-#define TACH_PULSES_PER_ROTATION 2
+#define TACH_PULSES_PER_ROTATION 4
 #define TACH_TIMEOUT_US 1000000
 
 /* Tach Data Structure */

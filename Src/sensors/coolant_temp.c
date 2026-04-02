@@ -93,8 +93,8 @@ static void CoolantTemp_PackData(CoolantTemp_Data_t* ct_data, CAN_Message_t* msg
     msg->data[3] = ct_data->adc.raw_mv >> 8;
     msg->data[4] = ct_data->adc.filt_mv & 0xFF;
     msg->data[5] = ct_data->adc.filt_mv >> 8;
-    msg->data[6] = ct_data->temp & 0xFF;
-    msg->data[7] = ct_data->temp >> 8;
+    msg->data[6] = ct_data->temp;
+    msg->data[7] = 0;
 
 }
 
