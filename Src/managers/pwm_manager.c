@@ -18,7 +18,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "managers/pwm_manager.h"
 #include "cmsis_os.h"
-#include <stdbool.h>
 
 /* Private Variables ---------------------------------------------------------*/
 static const uint8_t TEMP_POINTS[] = {10, 22, 27, 30, 35, 45, 50}; // Temperature points in Celsius
@@ -44,29 +43,27 @@ osMutexId_t inv_temp_mutex = NULL;
   */
 void PWM_ManagerTask(void *argument)
 {
-	if (PWM_ACTIVE) {
-		uint32_t last_update_tick = 0;
-		uint32_t current_tick = 0;
-		int8_t temp = 0;
-		uint16_t pwm_value = 0;
+	uint32_t last_update_tick = 0;
+	uint32_t current_tick = 0;
+	int8_t temp = 0;
+	uint16_t pwm_value = 0;
 
-		last_update_tick = osKernelGetTickCount();
+	last_update_tick = osKernelGetTickCount();
 
-		for(;;)
-		{
-			current_tick = osKernelGetTickCount();
+	for(;;)
+	{
+		current_tick = osKernelGetTickCount();
 
-			if (current_tick - last_update_tick >= PWM_UPDATE_INTERVAL_MS) {
-				temp = PWM_GetInvTemp();
-				pwm_value = PWM_CalculateValue(temp);
+		if (current_tick - last_update_tick >= PWM_UPDATE_INTERVAL_MS) {
+			temp = PWM_GetInvTemp();
+			pwm_value = PWM_CalculateValue(temp);
 
-				__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, pwm_value);
+			__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, pwm_value);
 
-				last_update_tick = current_tick;
-			}
-
-			osDelay(100);
+			last_update_tick = current_tick;
 		}
+
+		osDelay(100);
 	}
 
 }

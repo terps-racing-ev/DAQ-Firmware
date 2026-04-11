@@ -18,7 +18,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "managers/can_manager.h"
 #include "cmsis_os.h"
-#include "managers/config_manager.h"
+
+/* External Function Prototypes ----------------------------------------------*/
+int8_t Config_SetBoardID(uint8_t new_board_id);
 
 /* Private Variables ---------------------------------------------------------*/
 osMessageQueueId_t CANTxQueueHandle = NULL;
@@ -145,6 +147,14 @@ static void CAN_ProcessRxMessage(CAN_Message_t *msg)
 	// Check for configuration command message
     if (msg->id == CAN_SET_BOARD_ID_CMD) {
         Config_SetBoardID(msg->data[0]);
+        return;
+    }
+
+    // Check for reset command message
+    if (msg->id == RESET_CAN_ID) {
+    	// Reset command - trigger NVIC system reset
+        NVIC_SystemReset();
+        return;  // Never reached, but good practice
     }
 
 }

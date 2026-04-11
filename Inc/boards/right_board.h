@@ -35,7 +35,6 @@
 #define RAD_PWM_GPIO_PIN 		GPIO_PIN_6
 
 /* CAN IDs -------------------------------------------------------------------*/
-#define DBR_STATUS_CAN_ID 		0x0DC00000
 #define WSP_BR_CAN_ID 			0x0DC10000
 #define SHOCK_BR_CAN_ID 		0x0DC20000
 #define CT_MOTOR_CAN_ID 		0x0DC50000

@@ -20,12 +20,14 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include <stdbool.h>
 
 /* Defines -------------------------------------------------------------------*/
 #define PWM_UPDATE_INTERVAL_MS 1000
 
 /* External Variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim16;
+extern bool PWM_ACTIVE;
 
 /* Function Prototypes -------------------------------------------------------*/
 

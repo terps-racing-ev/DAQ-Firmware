@@ -19,6 +19,7 @@
 #include "managers/config_manager.h"
 #include "main.h"
 #include "cmsis_os.h"
+#include "managers/can_manager.h"
 #include "boards/front_board.h"
 #include "boards/left_board.h"
 #include "boards/right_board.h"
@@ -33,6 +34,7 @@ static int8_t Config_WriteBoardIDToFlash(uint8_t board_id);
 
 /* Public Variables ----------------------------------------------------------*/
 uint8_t NUM_SENSORS = 0;
+uint32_t RESET_CAN_ID = 0;
 uint32_t STATUS_CAN_ID = 0;
 
 /* Function Implementations --------------------------------------------------*/
@@ -56,23 +58,24 @@ void Config_Init(void)
     // Read board ID from flash storage
     BOARD_ID = Config_ReadBoardIDFromFlash();
 
+    STATUS_CAN_ID = CAN_ID(CAN_STATUS_BASE, BOARD_ID);
+    RESET_CAN_ID = CAN_ID(CAN_RESET_CMD_BASE, BOARD_ID);
+
     switch (BOARD_ID) {
 		case DBF_BOARD_ID:
 			DBF_Config();
 			NUM_SENSORS = DBF_NUM_SENSORS;
-			STATUS_CAN_ID = DBF_STATUS_CAN_ID;
 			break;
 		case DBL_BOARD_ID:
 			DBL_Config();
 			NUM_SENSORS = DBL_NUM_SENSORS;
-			STATUS_CAN_ID = DBL_STATUS_CAN_ID;
 			break;
 		case DBR_BOARD_ID:
 			DBR_Config();
 			NUM_SENSORS = DBR_NUM_SENSORS;
-			STATUS_CAN_ID = DBR_STATUS_CAN_ID;
 			break;
     }
+
 }
 
 /**

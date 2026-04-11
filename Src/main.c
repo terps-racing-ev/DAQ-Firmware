@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "managers/can_manager.h"
 #include "managers/config_manager.h"
+#include "managers/pwm_manager.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -100,6 +101,7 @@ const osThreadAttr_t Interrupt_Manager_attributes = {
   .stack_size = sizeof(Interrupt_ManagerBuffer),
   .priority = (osPriority_t) osPriorityRealtime,
 };
+/* USER CODE BEGIN PV */
 /* Definitions for PWM_Manager */
 osThreadId_t PWM_ManagerHandle;
 uint32_t PWM_ManagerBuffer[ 128 ];
@@ -112,8 +114,6 @@ const osThreadAttr_t PWM_Manager_attributes = {
   .stack_size = sizeof(PWM_ManagerBuffer),
   .priority = (osPriority_t) osPriorityHigh,
 };
-/* USER CODE BEGIN PV */
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -128,10 +128,9 @@ void LED_BlinkTask(void *argument);
 extern void CAN_ManagerTask(void *argument);
 extern void Sensor_ManagerTask(void *argument);
 extern void Interrupt_ManagerTask(void *argument);
-extern void PWM_ManagerTask(void *argument);
 
 /* USER CODE BEGIN PFP */
-
+extern void PWM_ManagerTask(void *argument);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -213,11 +212,11 @@ int main(void)
   /* creation of Interrupt_Manager */
   Interrupt_ManagerHandle = osThreadNew(Interrupt_ManagerTask, NULL, &Interrupt_Manager_attributes);
 
-  /* creation of PWM_Manager */
-  PWM_ManagerHandle = osThreadNew(PWM_ManagerTask, NULL, &PWM_Manager_attributes);
-
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  if (PWM_ACTIVE) {
+	  PWM_ManagerHandle = osThreadNew(PWM_ManagerTask, NULL, &PWM_Manager_attributes);
+  }
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */

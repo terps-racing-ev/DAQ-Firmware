@@ -35,7 +35,6 @@
 #define TACH_L_GPIO_PIN 		GPIO_PIN_1
 
 /* CAN IDs -------------------------------------------------------------------*/
-#define DBL_STATUS_CAN_ID 		0x0DB00000
 #define WSP_BL_CAN_ID 			0x0DB10000
 #define SHOCK_BL_CAN_ID 		0x0DB20000
 #define CT_SWIRL_CAN_ID 		0x0DB50000

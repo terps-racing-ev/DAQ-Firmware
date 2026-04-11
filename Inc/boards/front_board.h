@@ -35,7 +35,6 @@
 #define PITOT_ADC_CHANNEL 			ADC_CHANNEL_11
 
 /* CAN IDs -------------------------------------------------------------------*/
-#define DBF_STATUS_CAN_ID 			0x0DA00000
 #define WSP_FL_CAN_ID 				0x0DA10000
 #define WSP_FR_CAN_ID 				0x0DA11000
 #define SHOCK_FL_CAN_ID 			0x0DA20000
