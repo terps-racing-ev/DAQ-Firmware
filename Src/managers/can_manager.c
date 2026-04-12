@@ -18,9 +18,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "managers/can_manager.h"
 #include "cmsis_os.h"
+#include <stdbool.h>
 
 /* External Function Prototypes ----------------------------------------------*/
 int8_t Config_SetBoardID(uint8_t new_board_id);
+uint8_t Config_GetBoardID(void);
 
 /* Private Variables ---------------------------------------------------------*/
 osMessageQueueId_t CANTxQueueHandle = NULL;
@@ -32,6 +34,7 @@ static void CAN_ProcessRxMessage(CAN_Message_t *msg);
 static void CAN_ProcessTxQueue(void);
 static HAL_StatusTypeDef CAN_TxMessage(CAN_Message_t* msg);
 static HAL_StatusTypeDef CAN_SendHeartbeat(void);
+static bool CAN_IsMessageForThisBoard(uint32_t can_id);
 
 /* Function Implementations --------------------------------------------------*/
 
@@ -144,14 +147,16 @@ static uint32_t CAN_GetNotificationFlags(void)
   */
 static void CAN_ProcessRxMessage(CAN_Message_t *msg)
 {
+	uint32_t base_id = msg->id & 0xFF0FFFFF;
+
 	// Check for configuration command message
-    if (msg->id == CAN_SET_BOARD_ID_CMD) {
+    if (base_id == CAN_SET_BOARD_ID_CMD_BASE) {
         Config_SetBoardID(msg->data[0]);
         return;
     }
 
     // Check for reset command message
-    if (msg->id == RESET_CAN_ID) {
+    if (base_id == CAN_RESET_CMD_BASE) {
     	// Reset command - trigger NVIC system reset
         NVIC_SystemReset();
         return;  // Never reached, but good practice
@@ -214,6 +219,20 @@ static HAL_StatusTypeDef CAN_SendHeartbeat(void)
 }
 
 /**
+  * @brief  Check if RX message is for this board
+  * @param  can_id: ID of RX message
+  * @retval True if for this board, false if not
+  */
+static bool CAN_IsMessageForThisBoard(uint32_t can_id)
+{
+	uint8_t this_board_id = Config_GetBoardID();
+	uint8_t rx_board_id = (can_id >> 20) & 0x0F; // Board ID is encoded in bits 20:23 of RX CAN ID
+
+    return (rx_board_id == this_board_id);
+
+}
+
+/**
   * @brief  CAN RX FIFO 0 message pending callback
   * @param  hcan: Pointer to CAN handle
   * @retval None
@@ -225,11 +244,13 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
     // Get message from FIFO
     if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, msg.data) == HAL_OK) {
-        // Store message details (all messages are extended ID)
+    	// Store message details (all messages are extended ID)
         msg.id = RxHeader.ExtId;
 
-        // Add to RX queue (from ISR context)
-        osMessageQueuePut(CANRxQueueHandle, &msg, 0, 0);
+		if (CAN_IsMessageForThisBoard(msg.id)) {
+			// Add to RX queue (from ISR context)
+			osMessageQueuePut(CANRxQueueHandle, &msg, 0, 0);
+		}
     }
 
 }
@@ -249,8 +270,10 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 		// Store message details (all messages are extended ID)
 		msg.id = RxHeader.ExtId;
 
-		// Add to RX queue (from ISR context)
-		osMessageQueuePut(CANRxQueueHandle, &msg, 0, 0);
+		if (CAN_IsMessageForThisBoard(msg.id)) {
+			// Add to RX queue (from ISR context)
+			osMessageQueuePut(CANRxQueueHandle, &msg, 0, 0);
+		}
 	}
 
 }

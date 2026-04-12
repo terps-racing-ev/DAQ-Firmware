@@ -34,7 +34,6 @@ static int8_t Config_WriteBoardIDToFlash(uint8_t board_id);
 
 /* Public Variables ----------------------------------------------------------*/
 uint8_t NUM_SENSORS = 0;
-uint32_t RESET_CAN_ID = 0;
 uint32_t STATUS_CAN_ID = 0;
 
 /* Function Implementations --------------------------------------------------*/
@@ -59,7 +58,6 @@ void Config_Init(void)
     BOARD_ID = Config_ReadBoardIDFromFlash();
 
     STATUS_CAN_ID = CAN_ID(CAN_STATUS_BASE, BOARD_ID);
-    RESET_CAN_ID = CAN_ID(CAN_RESET_CMD_BASE, BOARD_ID);
 
     switch (BOARD_ID) {
 		case DBF_BOARD_ID:

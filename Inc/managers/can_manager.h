@@ -33,13 +33,12 @@
 /* Helper macro to create CAN ID with board ID */
 #define CAN_ID(base, board)    ((base) | ((board) << CAN_BOARD_ID_SHIFT))
 
-#define CAN_SET_BOARD_ID_CMD 	0x0D000000
-#define CAN_RESET_CMD_BASE 		0x0D000001
-#define CAN_STATUS_BASE			0x0D000000
+#define CAN_STATUS_BASE				0x0D000000
+#define CAN_SET_BOARD_ID_CMD_BASE 	0x0D0000C1
+#define CAN_RESET_CMD_BASE 			0x0D0000C2
 
 /* External Variables --------------------------------------------------------*/
 extern CAN_HandleTypeDef hcan1;
-extern uint32_t RESET_CAN_ID;
 extern uint32_t STATUS_CAN_ID;
 
 /* CAN Message Structure */
