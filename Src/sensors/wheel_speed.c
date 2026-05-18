@@ -19,6 +19,7 @@
 #include "managers/can_manager.h"
 #include "sensors/wheel_speed.h"
 #include <math.h>
+#include "wheel_speed.h"
 
 /* Private Variables ---------------------------------------------------------*/
 static const uint32_t US_PER_MIN = 60000000;
@@ -72,7 +73,6 @@ void WheelSpeed_Update(WheelSpeed_Data_t* wsp_data)
     	wsp_data->rpm = (wsp_type) (US_PER_MIN / avg_delta / WSP_SPOKES);
     	wsp_data->mph = (wsp_type) (100 * 2 * M_PI * WSP_ROLLING_RADIUS * US_PER_HOUR / avg_delta / WSP_SPOKES / INCHES_PER_MILE); // mph*100
     }
-
 }
 
 /**
@@ -86,7 +86,7 @@ static void WheelSpeed_PackData(WheelSpeed_Data_t* wsp_data, CAN_Message_t* msg)
     uint32_t avg_delta = Interrupt_GetAverageDelta(&wsp_data->interrupt);
 
     msg->data[0] = wsp_data->error_flags;
-	msg->data[1] = avg_delta & 0xFF;
+	  msg->data[1] = avg_delta & 0xFF;
     msg->data[2] = (avg_delta >> 8) & 0xFF;
     msg->data[3] = (avg_delta >> 16) & 0xFF;
     msg->data[4] = avg_delta >> 24;
@@ -109,4 +109,24 @@ void WheelSpeed_SendCAN(WheelSpeed_Data_t* wsp_data, uint32_t can_id)
 	WheelSpeed_PackData(wsp_data, &msg);
 	CAN_SendMessage(&msg);
 
+}
+
+void ODO_SendCAN(ODO_Data_t *odo_data, uint32_t can_id) {
+  CAN_Message_t msg;
+  msg.id = can_id;
+
+  uint32_t l_ticks = odo_data->l_data->interrupt.ticks;
+  uint32_t r_ticks = odo_data->r_data->interrupt.ticks;
+
+  msg.data[0] = l_ticks & 0xFF;
+  msg.data[1] = (l_ticks >> 8) & 0xFF;
+  msg.data[2] = (l_ticks >> 16) & 0xFF;
+  msg.data[3] = (l_ticks >> 24) & 0xFF;
+
+  msg.data[4] = r_ticks & 0xFF;
+  msg.data[5] = (r_ticks >> 8) & 0xFF;
+  msg.data[6] = (r_ticks >> 16) & 0xFF;
+  msg.data[7] = (r_ticks >> 24) & 0xFF;
+
+  CAN_SendMessage(&msg);
 }

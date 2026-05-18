@@ -27,7 +27,7 @@
 #include "sensors/wheel_speed.h"
 
 /* Defines -------------------------------------------------------------------*/
-#define MAX_NUM_SENSORS 6 // per board
+#define MAX_NUM_SENSORS 7 // 6 per board, 1 for odometry
 #define SENSOR_UPDATE_INTERVAL_MS 50
 #define SENSOR_CAN_SEND_INTERVAL_MS 100
 
@@ -42,7 +42,8 @@ typedef enum {
 	PITOT_TUBE,
 	STEERING_ANGLE,
 	TACH,
-	WHEEL_SPEED
+	WHEEL_SPEED,
+  ODO
 } SensorType;
 
 /* Sensor Structure */
@@ -57,11 +58,12 @@ typedef struct Sensor_t {
 
     union {
         CoolantTemp_Data_t ct_data;
-    	LinearPot_Data_t lp_data;
+    	  LinearPot_Data_t lp_data;
         PitotTube_Data_t pitot_data;
         SteeringAngle_Data_t sa_data;
         Tach_Data_t tach_data;
         WheelSpeed_Data_t wsp_data;
+        ODO_Data_t odo_data; // Dummy sensor
     };
 
     uint32_t can_id;

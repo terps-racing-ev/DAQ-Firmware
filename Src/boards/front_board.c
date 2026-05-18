@@ -69,6 +69,12 @@ void DBF_Config(void)
 	    .can_id = PITOT_CAN_ID
 	};
 
+	Sensor_t odo = {
+		.type = ODO,
+		.odo_data = {0},
+		.can_id = F_ODO_LR_CAN_ID
+	};
+
 	SensorList[0] = wsp_fl;
 	Interrupt_Config(SensorList[0].gpio_pin, &SensorList[0].wsp_data.interrupt);
 
@@ -79,5 +85,8 @@ void DBF_Config(void)
 	SensorList[3] = shock_fr;
 	SensorList[4] = steering_angle;
 	SensorList[5] = pitot;
-
+	
+	SensorList[6] = odo;
+	SensorList[6].odo_data.l_data = &SensorList[0].wsp_data;
+	SensorList[6].odo_data.r_data = &SensorList[1].wsp_data;
 }

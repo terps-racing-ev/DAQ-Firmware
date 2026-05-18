@@ -93,6 +93,9 @@ void Sensor_Init(Sensor_t* sensor)
 		case WHEEL_SPEED:
 			WheelSpeed_Init(&sensor->wsp_data);
 			break;
+		case ODO:
+			ODO_Init(&sensor->odo_data);
+			break;
 	}
 
 }
@@ -156,6 +159,9 @@ void Sensor_SendCAN(Sensor_t* sensor)
 		case WHEEL_SPEED:
 			WheelSpeed_SendCAN(&sensor->wsp_data, sensor->can_id);
 			break;
+		case ODO:
+			ODO_SendCAN(&sensor->odo_data, sensor->can_id);
 	}
+
 
 }

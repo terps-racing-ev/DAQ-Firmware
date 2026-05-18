@@ -41,6 +41,7 @@
 #define SHOCK_FR_CAN_ID 			0x0DA21000
 #define STEERING_ANGLE_CAN_ID 		0x0DA30000
 #define PITOT_CAN_ID 				0x0DA40000
+#define F_ODO_LR_CAN_ID       0x0DA9000
 
 /* External Variables --------------------------------------------------------*/
 extern Sensor_t SensorList[MAX_NUM_SENSORS];
