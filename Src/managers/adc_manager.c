@@ -17,6 +17,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "managers/adc_manager.h"
+#include "sensor_defs.h"
 
 /* Private Function Prototypes -----------------------------------------------*/
 static HAL_StatusTypeDef ADC_ConfigureChannel(uint32_t adc_channel);
@@ -48,8 +49,8 @@ void ADC_Init(ADC_Data_t* adc_data)
 HAL_StatusTypeDef ADC_Update(ADC_Data_t* adc_data, uint32_t adc_channel)
 {
 	if (ADC_Read(adc_channel, &adc_data->adc_value) != HAL_OK) {
-	        return HAL_ERROR;
-	    }
+		return HAL_ERROR;
+	}
 
 	adc_data->raw_mv = ADC_ConvertToUnscaledMV(adc_data->adc_value);
 	adc_data->filt_mv = (uint16_t) MovingAverage_Update(&adc_data->ma, adc_data->raw_mv);

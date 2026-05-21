@@ -42,6 +42,8 @@ void PitotTube_Init(PitotTube_Data_t* pitot_data)
     pitot_data->calibration_cnt = 0;
     pitot_data->vel_scaled = 0;
 
+    pitot_data->valid = false;
+
 }
 
 /**
@@ -55,11 +57,12 @@ void PitotTube_Update(PitotTube_Data_t* pitot_data, uint32_t adc_channel)
     uint16_t adc_zero_point;
     float vel;
 
-    pitot_data->error_flags = 0;
+    pitot_data->valid = false;
+    pitot_data->adc_err = false;
 
     if (pitot_data->calibration_cnt < PITOT_CALIBRATION_READINGS) {
         if (ADC_Read(adc_channel, &pitot_data->adc.adc_value) != HAL_OK) {
-            pitot_data->error_flags |= ERROR_ADC_ERR;
+            pitot_data->adc_err = true;
             return;
         }
         pitot_data->calibration_sum += pitot_data->adc.adc_value;
@@ -73,9 +76,11 @@ void PitotTube_Update(PitotTube_Data_t* pitot_data, uint32_t adc_channel)
     }
 
     if (ADC_Update(&pitot_data->adc, adc_channel) != HAL_OK) {
-    	pitot_data->error_flags |= ERROR_ADC_ERR;
+    	pitot_data->adc_err = true;
         return;
     }
+
+    pitot_data->valid = true;
 
     pitot_data->pressure = pitot_data->adc.filt_mv - pitot_data->zero_point; // 1 to 1 with Pa theoretically
     vel = (sqrt(fabsf( 2*(pitot_data->pressure) / AIR_DENSITY) )) * M_PER_S_TO_MPH; // velocity in mph
@@ -92,13 +97,14 @@ void PitotTube_Update(PitotTube_Data_t* pitot_data, uint32_t adc_channel)
   */
 static void PitotTube_PackData(PitotTube_Data_t* pitot_data, CAN_Message_t* msg)
 {
-    msg->data[0] = pitot_data->error_flags;
+    msg->data[0] = (pitot_data->valid) | (pitot_data->adc_err << 1);
     msg->data[1] = pitot_data->adc.raw_mv & 0xFF;
     msg->data[2] = pitot_data->adc.raw_mv >> 8;
     msg->data[3] = pitot_data->adc.filt_mv & 0xFF;
     msg->data[4] = pitot_data->adc.filt_mv >> 8;
     msg->data[5] = pitot_data->vel_scaled & 0xFF;
     msg->data[6] = pitot_data->vel_scaled >> 8;
+    msg->data[7] = 0;
 
 }
 

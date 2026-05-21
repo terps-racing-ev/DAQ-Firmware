@@ -21,6 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "sensor_defs.h"
 #include "managers/adc_manager.h"
+#include <stdbool.h>
 
 /* Defines -------------------------------------------------------------------*/
 #define SA_ZERO_MV 2500 // Zero point voltage based on calibration
@@ -36,7 +37,9 @@ typedef struct {
     int16_t delta;
     sa_type angle;
 
-    uint8_t error_flags;
+    bool valid;
+
+    bool adc_err;
 
 } SteeringAngle_Data_t;
 

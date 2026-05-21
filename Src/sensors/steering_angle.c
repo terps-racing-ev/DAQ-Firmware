@@ -34,6 +34,7 @@ void SteeringAngle_Init(SteeringAngle_Data_t* sa_data)
 	ADC_Init(&sa_data->adc);
 
     sa_data->angle = 0;
+    sa_data->valid = false;
 
 }
 
@@ -45,12 +46,15 @@ void SteeringAngle_Init(SteeringAngle_Data_t* sa_data)
   */
 void SteeringAngle_Update(SteeringAngle_Data_t* sa_data, uint32_t adc_channel)
 {
-    sa_data->error_flags = 0;
+    sa_data->valid = false;
+    sa_data->adc_err = false;
 
     if (ADC_Update(&sa_data->adc, adc_channel) != HAL_OK) {
-        sa_data->error_flags |= ERROR_ADC_ERR;
+        sa_data->adc_err = true;
         return;
     }
+
+    sa_data->valid = true;
 
     sa_data->delta = sa_data->adc.filt_mv - SA_ZERO_MV;
 
@@ -73,13 +77,14 @@ void SteeringAngle_Update(SteeringAngle_Data_t* sa_data, uint32_t adc_channel)
   */
 static void SteeringAngle_PackData(SteeringAngle_Data_t* sa_data, CAN_Message_t* msg)
 {
-    msg->data[0] = sa_data->error_flags;
+    msg->data[0] = (sa_data->valid) | (sa_data->adc_err << 1);
     msg->data[1] = sa_data->adc.raw_mv & 0xFF;
     msg->data[2] = sa_data->adc.raw_mv >> 8;
     msg->data[3] = sa_data->adc.filt_mv & 0xFF;
     msg->data[4] = sa_data->adc.filt_mv >> 8;
     msg->data[5] = (uint8_t)(sa_data->angle & 0xFF);
     msg->data[6] = (uint8_t)(sa_data->angle >> 8);
+    msg->data[7] = 0;
 
 }
 

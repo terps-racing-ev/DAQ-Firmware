@@ -394,11 +394,12 @@ static void MX_CAN1_Init(void)
   filterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
   filterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
 
-  // Accept all extended IDs: ID=0, Mask=0 means "don't care about any bits"
+  // Filter format: 29-bit ID followed by IDE bit (= 1 for extended ID), RTR bit (= 0 for data frame), and reserved bit (= 0)
+  // Mask = 1 for bits we want to match, 0 for don't cares
   filterConfig.FilterIdHigh = ((0x0D0000C0 << 3 | 0x04) >> 16) & 0xFFFF;
-  filterConfig.FilterIdLow = (0x0D0000C0 << 3 | 0x04) & 0xFFFF;   // Only IDE bit set (extended ID)
-  filterConfig.FilterMaskIdHigh = ((0x0F0000F0 << 3 | 0x04) >> 16) & 0xFFFF;  // Don't care about any ID bits
-  filterConfig.FilterMaskIdLow = (0x0F0000F0 << 3 | 0x04) & 0xFFFF;   // But we DO care about IDE bit (only extended)
+  filterConfig.FilterIdLow = (0x0D0000C0 << 3 | 0x04) & 0xFFFF;
+  filterConfig.FilterMaskIdHigh = ((0x0F0000F0 << 3 | 0x04) >> 16) & 0xFFFF;
+  filterConfig.FilterMaskIdLow = (0x0F0000F0 << 3 | 0x04) & 0xFFFF;
 
   filterConfig.FilterFIFOAssignment = CAN_RX_FIFO0;
   filterConfig.FilterActivation = ENABLE;

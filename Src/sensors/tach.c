@@ -37,6 +37,7 @@ void Tach_Init(Tach_Data_t* tach_data)
 	Interrupt_Init(&tach_data->interrupt);
 
 	tach_data->rpm = 0;
+	tach_data->valid = false;
 
 }
 
@@ -51,16 +52,19 @@ void Tach_Update(Tach_Data_t* tach_data)
 	uint32_t now;
 	uint32_t avg_delta;
 
-	tach_data->error_flags = 0;
+	tach_data->valid = false;
+	tach_data->timeout = false;
 
     last_pulse_time = Interrupt_GetLastPulseTime(&tach_data->interrupt);
 
     now = __HAL_TIM_GET_COUNTER(&htim2);
     if (now - last_pulse_time > TACH_TIMEOUT_US) {
-        Interrupt_Reset(&tach_data->interrupt);
-        tach_data->error_flags |= ERROR_TIMEOUT;
+        // Interrupt_Reset(&tach_data->interrupt);
+        tach_data->timeout = true;
         return;
     }
+
+    tach_data->valid = true;
 
     avg_delta = Interrupt_GetAverageDelta(&tach_data->interrupt);
 
@@ -80,7 +84,7 @@ static void Tach_PackData(Tach_Data_t* tach_data, CAN_Message_t* msg)
 {
 	uint32_t avg_delta = Interrupt_GetAverageDelta(&tach_data->interrupt);
 
-	msg->data[0] = tach_data->error_flags;
+	msg->data[0] = (tach_data->valid) | (tach_data->timeout << 1);
 	msg->data[1] = avg_delta & 0xFF;
 	msg->data[2] = (avg_delta >> 8) & 0xFF;
 	msg->data[3] = (avg_delta >> 16) & 0xFF;

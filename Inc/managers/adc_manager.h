@@ -25,8 +25,6 @@
 
 /* Defines -------------------------------------------------------------------*/
 #define ADC_TIMEOUT_MS 1
-#define SUPPLY_VOLTAGE 5000 // mV
-#define VOLTAGE_DIVIDER_SCALE_FACTOR 2
 
 /* External Variables --------------------------------------------------------*/
 extern ADC_HandleTypeDef hadc1;

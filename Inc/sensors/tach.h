@@ -21,6 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "sensor_defs.h"
 #include "managers/interrupt_manager.h"
+#include <stdbool.h>
 
 /* Defines -------------------------------------------------------------------*/
 #define TACH_PULSES_PER_ROTATION 4
@@ -33,7 +34,9 @@ typedef struct {
 
     tach_type rpm;
 
-    uint8_t error_flags;
+    bool valid;
+
+    bool timeout;
 
 } Tach_Data_t;
 

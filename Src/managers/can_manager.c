@@ -212,7 +212,18 @@ static HAL_StatusTypeDef CAN_TxMessage(CAN_Message_t* msg) {
 static HAL_StatusTypeDef CAN_SendHeartbeat(void)
 {
     CAN_Message_t msg = {0};
+    uint32_t current_tick = osKernelGetTickCount();
+
     msg.id = STATUS_CAN_ID;
+
+    msg.data[0] = current_tick & 0xFF;
+    msg.data[1] = (current_tick >> 8) & 0xFF;
+    msg.data[2] = (current_tick >> 16) & 0xFF;
+    msg.data[3] = current_tick >> 24;
+    msg.data[4] = 0;
+    msg.data[5] = 0;
+    msg.data[6] = 0;
+    msg.data[7] = 0;
 
     return CAN_SendMessage(&msg);
 

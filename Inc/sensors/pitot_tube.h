@@ -21,6 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "sensor_defs.h"
 #include "managers/adc_manager.h"
+#include <stdbool.h>
 
 /* Defines -------------------------------------------------------------------*/
 #define PITOT_CALIBRATION_READINGS 100
@@ -37,7 +38,9 @@ typedef struct {
     int16_t pressure;
     pitot_type vel_scaled;
 
-    uint8_t error_flags;
+    bool valid;
+
+    bool adc_err;
 
 } PitotTube_Data_t;
 

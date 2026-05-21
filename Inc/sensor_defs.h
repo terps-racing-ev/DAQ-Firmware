@@ -21,6 +21,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
 
+/* Sensor Hardware Setup */
+#define SUPPLY_VOLTAGE 5000 // mV
+#define VOLTAGE_DIVIDER_SCALE_FACTOR 2
+
 /* Sensor Data Types */
 typedef int8_t ct_type; // -40 to 120 C
 
@@ -32,11 +36,6 @@ typedef int16_t sa_type; // -1800 to 1800 degrees*10
 
 typedef uint16_t tach_type; // rpm
 
-typedef uint16_t wsp_type; // mph*100
-
-/* Sensor Error Flags */
-#define ERROR_ADC_ERR 		(1 << 0)
-#define ERROR_TIMEOUT 		(1 << 1)
-#define ERROR_OUT_OF_RANGE 	(1 << 2)
+typedef uint16_t wsp_type; // rpm
 
 #endif // SENSOR_TYPES_H
