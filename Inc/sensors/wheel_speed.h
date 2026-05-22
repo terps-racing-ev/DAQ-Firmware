@@ -47,6 +47,14 @@ typedef struct {
 
 } WheelSpeed_Data_t;
 
+/* Odo Data Structure */
+typedef struct {
+
+	WheelSpeed_Data_t* l_data;
+	WheelSpeed_Data_t* r_data;
+
+} Odo_Data_t;
+
 /* Function Prototypes -------------------------------------------------------*/
 
 /**
@@ -70,5 +78,13 @@ void WheelSpeed_Update(WheelSpeed_Data_t* wsp_data);
   * @retval None
   */
 void WheelSpeed_SendCAN(WheelSpeed_Data_t* wsp_data, uint32_t can_id);
+
+/**
+  * @brief  Send odometer data CAN message
+  * @param  odo_data: Pointer to odometer data structure
+  * @param  can_id: CAN message ID
+  * @retval None
+  */
+void Odo_SendCAN(Odo_Data_t* odo_data, uint32_t can_id);
 
 #endif // WHEEL_SPEED_H

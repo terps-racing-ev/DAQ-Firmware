@@ -156,6 +156,8 @@ void Sensor_SendCAN(Sensor_t* sensor)
 		case WHEEL_SPEED:
 			WheelSpeed_SendCAN(&sensor->wsp_data, sensor->can_id);
 			break;
+		case ODO:
+			Odo_SendCAN(&sensor->odo_data, sensor->can_id);
 	}
 
 }

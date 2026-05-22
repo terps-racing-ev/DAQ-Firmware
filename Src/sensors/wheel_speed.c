@@ -115,3 +115,41 @@ void WheelSpeed_SendCAN(WheelSpeed_Data_t* wsp_data, uint32_t can_id)
 	CAN_SendMessage(&msg);
 
 }
+
+/**
+  * @brief  Pack odometer data into CAN message
+  * @param  odo_data: Pointer to odometer data structure
+  * @param  msg: Pointer to CAN message structure
+  * @retval None
+  */
+static void Odo_PackData(Odo_Data_t* odo_data, CAN_Message_t* msg)
+{
+    uint32_t l_ticks = Interrupt_GetTicks(&odo_data->l_data->interrupt);
+    uint32_t r_ticks = Interrupt_GetTicks(&odo_data->r_data->interrupt);
+
+    msg->data[0] = l_ticks & 0xFF;
+	msg->data[1] = (l_ticks >> 8) & 0xFF;
+	msg->data[2] = (l_ticks >> 16) & 0xFF;
+	msg->data[3] = l_ticks >> 24;
+	msg->data[4] = r_ticks & 0xFF;
+	msg->data[5] = (r_ticks >> 8) & 0xFF;
+	msg->data[6] = (r_ticks >> 16) & 0xFF;
+	msg->data[7] = r_ticks >> 24;
+
+}
+
+/**
+  * @brief  Send odometer data CAN message
+  * @param  odo_data: Pointer to odometer data structure
+  * @param  can_id: CAN message ID
+  * @retval None
+  */
+void Odo_SendCAN(Odo_Data_t* odo_data, uint32_t can_id)
+{
+	CAN_Message_t msg;
+
+	msg.id = can_id;
+	Odo_PackData(odo_data, &msg);
+	CAN_SendMessage(&msg);
+
+}
