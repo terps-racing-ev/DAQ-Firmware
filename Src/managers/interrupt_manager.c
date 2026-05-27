@@ -23,6 +23,9 @@ osMessageQueueId_t InterruptQueueHandle = NULL;
 static Interrupt_Pin_t InterruptPinList[MAX_NUM_INTERRUPT_PINS] = {0};
 static uint8_t NUM_INTERRUPT_PINS = 0;
 
+
+static uint32_t count = 0;
+
 /* Private Function Prototypes -----------------------------------------------*/
 static void Interrupt_Handler(Interrupt_Data_t* int_data, uint32_t timestamp);
 
@@ -35,16 +38,17 @@ static void Interrupt_Handler(Interrupt_Data_t* int_data, uint32_t timestamp);
   */
 void Interrupt_ManagerTask(void *argument)
 {
+	osStatus_t status;
 	Interrupt_t interrupt;
 
 	for(;;)
 	{
 		// Process new interrupts from interrupt queue
-		while (osMessageQueueGet(InterruptQueueHandle, &interrupt, NULL, 0) == osOK) {
+		status = osMessageQueueGet(InterruptQueueHandle, &interrupt, NULL, osWaitForever);
+
+		if (status == osOK) {
 			Interrupt_Handler(InterruptPinList[interrupt.index].int_data, interrupt.timestamp);
 		}
-
-		osDelay(1);
 	}
 }
 

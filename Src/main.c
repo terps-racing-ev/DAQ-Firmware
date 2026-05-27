@@ -100,7 +100,7 @@ const osThreadAttr_t Interrupt_Manager_attributes = {
   .cb_size = sizeof(Interrupt_ManagerControlBlock),
   .stack_mem = &Interrupt_ManagerBuffer[0],
   .stack_size = sizeof(Interrupt_ManagerBuffer),
-  .priority = (osPriority_t) osPriorityRealtime,
+  .priority = (osPriority_t) osPriorityHigh,
 };
 /* USER CODE BEGIN PV */
 /* Definitions for PWM_Manager */
