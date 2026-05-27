@@ -147,6 +147,12 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+  __disable_irq();
+
+  // Disable SysTick (bootloader might have enabled it)
+  SysTick->CTRL = 0;
+  SysTick->LOAD = 0;
+  SysTick->VAL = 0;
 
   /* USER CODE END 1 */
 

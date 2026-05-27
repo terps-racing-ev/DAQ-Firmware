@@ -68,3 +68,4 @@ __pycache__/
 # VS Code user/machine-local settings
 .vscode/settings.json
 .vscode/c_cpp_properties.json
+.stm32env
