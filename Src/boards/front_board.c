@@ -76,10 +76,10 @@ void DBF_Config(void)
 	};
 
 	SensorList[0] = wsp_fl;
-	Interrupt_Config(SensorList[0].gpio_pin, &SensorList[0].wsp_data.interrupt);
+	Interrupt_ConfigPin(SensorList[0].gpio_pin, &SensorList[0].wsp_data.interrupt);
 
 	SensorList[1] = wsp_fr;
-	Interrupt_Config(SensorList[1].gpio_pin, &SensorList[1].wsp_data.interrupt);
+	Interrupt_ConfigPin(SensorList[1].gpio_pin, &SensorList[1].wsp_data.interrupt);
 
 	SensorList[2] = shock_fl;
 	SensorList[3] = shock_fr;

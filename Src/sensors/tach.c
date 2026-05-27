@@ -34,7 +34,7 @@ static void Tach_PackData(Tach_Data_t* tach_data, CAN_Message_t* msg);
   */
 void Tach_Init(Tach_Data_t* tach_data)
 {
-	Interrupt_Init(&tach_data->interrupt);
+	Interrupt_InitData(&tach_data->interrupt);
 
 	tach_data->rpm = 0;
 	tach_data->valid = false;
@@ -59,7 +59,7 @@ void Tach_Update(Tach_Data_t* tach_data)
 
     now = __HAL_TIM_GET_COUNTER(&htim2);
     if (now - last_pulse_time > TACH_TIMEOUT_US) {
-        // Interrupt_Reset(&tach_data->interrupt);
+        // Interrupt_ResetData(&tach_data->interrupt);
         tach_data->timeout = true;
         return;
     }

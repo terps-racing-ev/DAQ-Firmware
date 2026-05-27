@@ -70,7 +70,7 @@ void DBL_Config(void)
 	};
 
 	SensorList[0] = wsp_bl;
-	Interrupt_Config(SensorList[0].gpio_pin, &SensorList[0].wsp_data.interrupt);
+	Interrupt_ConfigPin(SensorList[0].gpio_pin, &SensorList[0].wsp_data.interrupt);
 
 	SensorList[1] = shock_bl;
 	SensorList[2] = ct_swirl;
@@ -78,6 +78,6 @@ void DBL_Config(void)
 	SensorList[4] = ct_rad2;
 
 	SensorList[5] = tach_l;
-	Interrupt_Config(SensorList[5].gpio_pin, &SensorList[5].tach_data.interrupt);
+	Interrupt_ConfigPin(SensorList[5].gpio_pin, &SensorList[5].tach_data.interrupt);
 
 }

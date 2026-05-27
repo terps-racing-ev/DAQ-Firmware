@@ -19,11 +19,12 @@
 #include "managers/interrupt_manager.h"
 
 /* Private Variables ---------------------------------------------------------*/
-static Interrupt_t InterruptList[MAX_NUM_INTERRUPTS] = {0};
-static uint8_t NUM_INTERRUPTS = 0;
+osMessageQueueId_t InterruptQueueHandle = NULL;
+static Interrupt_Pin_t InterruptPinList[MAX_NUM_INTERRUPT_PINS] = {0};
+static uint8_t NUM_INTERRUPT_PINS = 0;
 
 /* Private Function Prototypes -----------------------------------------------*/
-static void Interrupt_Handler(Interrupt_Data_t* int_data);
+static void Interrupt_Handler(Interrupt_Data_t* int_data, uint32_t timestamp);
 
 /* Function Implementations --------------------------------------------------*/
 
@@ -34,37 +35,47 @@ static void Interrupt_Handler(Interrupt_Data_t* int_data);
   */
 void Interrupt_ManagerTask(void *argument)
 {
-	uint32_t awaited_flags;
-	uint32_t set_flags;
-
-	awaited_flags = (uint32_t)((1U << NUM_INTERRUPTS) - 1U);
+	Interrupt_t interrupt;
 
 	for(;;)
 	{
-		set_flags = osThreadFlagsWait(awaited_flags, osFlagsWaitAny, osWaitForever);
-
-		for (int i = 0; i < NUM_INTERRUPTS; i++) {
-			if ((set_flags >> i) & 1U) {
-				Interrupt_Handler(InterruptList[i].int_data);
-			}
+		// Process new interrupts from interrupt queue
+		while (osMessageQueueGet(InterruptQueueHandle, &interrupt, NULL, 0) == osOK) {
+			Interrupt_Handler(InterruptPinList[interrupt.index].int_data, interrupt.timestamp);
 		}
 
-		osDelay(2);
+		osDelay(1);
 	}
 }
 
 /**
-  * @brief  Add interrupt to interrupt list
+  * @brief  Initialize interrupt manager
+  * @retval HAL_StatusTypeDef
+  */
+HAL_StatusTypeDef Interrupt_Manager_Init(void)
+{
+    // Create interrupt queue
+    InterruptQueueHandle = osMessageQueueNew(INTERRUPT_QUEUE_SIZE, sizeof(Interrupt_t), NULL);
+    if (InterruptQueueHandle == NULL) {
+        return HAL_ERROR;
+    }
+
+    return HAL_OK;
+
+}
+
+/**
+  * @brief  Add interrupt pin to interrupt pin list
   * @param  gpio_pin: GPIO pin triggering the interrupt
-  * @param  int_data: Pointer to data structure for the interrupt
+  * @param  int_data: Pointer to data structure for the interrupt pin
   * @retval None
   */
-void Interrupt_Config(uint16_t gpio_pin, Interrupt_Data_t* int_data)
+void Interrupt_ConfigPin(uint16_t gpio_pin, Interrupt_Data_t* int_data)
 {
-	InterruptList[NUM_INTERRUPTS].gpio_pin = gpio_pin;
-	InterruptList[NUM_INTERRUPTS].int_data = int_data;
-	InterruptList[NUM_INTERRUPTS].int_data->mutex = osMutexNew(NULL);
-	NUM_INTERRUPTS++;
+	InterruptPinList[NUM_INTERRUPT_PINS].gpio_pin = gpio_pin;
+	InterruptPinList[NUM_INTERRUPT_PINS].int_data = int_data;
+	InterruptPinList[NUM_INTERRUPT_PINS].int_data->mutex = osMutexNew(NULL);
+	NUM_INTERRUPT_PINS++;
 
 }
 
@@ -73,7 +84,7 @@ void Interrupt_Config(uint16_t gpio_pin, Interrupt_Data_t* int_data)
   * @param  int_data: Pointer to interrupt data structure
   * @retval None
   */
-void Interrupt_Init(Interrupt_Data_t* int_data)
+void Interrupt_InitData(Interrupt_Data_t* int_data)
 {
 	osMutexAcquire(int_data->mutex, osWaitForever);
 
@@ -92,13 +103,13 @@ void Interrupt_Init(Interrupt_Data_t* int_data)
   * @param  int_data: Pointer to interrupt data structure
   * @retval None
   */
-static void Interrupt_Handler(Interrupt_Data_t* int_data)
+static void Interrupt_Handler(Interrupt_Data_t* int_data, uint32_t timestamp)
 {
 	osMutexAcquire(int_data->mutex, osWaitForever);
 
-	uint32_t now = __HAL_TIM_GET_COUNTER(&htim2);
-    int_data->delta = now - int_data->last_pulse_time;
-    int_data->last_pulse_time = now;
+	uint32_t new_pulse_time = timestamp;
+    int_data->delta = new_pulse_time - int_data->last_pulse_time;
+    int_data->last_pulse_time = new_pulse_time;
     int_data->ticks++;
 
     int_data->avg_delta = MovingAverage_Update(&int_data->ma, int_data->delta);
@@ -112,7 +123,7 @@ static void Interrupt_Handler(Interrupt_Data_t* int_data)
   * @param  int_data: Pointer to interrupt data structure
   * @retval None
   */
-void Interrupt_Reset(Interrupt_Data_t* int_data)
+void Interrupt_ResetData(Interrupt_Data_t* int_data)
 {
 	osMutexAcquire(int_data->mutex, osWaitForever);
 
@@ -190,12 +201,13 @@ uint32_t Interrupt_GetTicks(Interrupt_Data_t* int_data)
   */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	uint32_t flags;
+	Interrupt_t interrupt;
 
-	for (int i = 0; i < NUM_INTERRUPTS; i++) {
-		if (GPIO_Pin == InterruptList[i].gpio_pin) {
-			flags = (uint32_t)(1U << i);
-			osThreadFlagsSet(Interrupt_ManagerHandle, flags);
+	for (int i = 0; i < NUM_INTERRUPT_PINS; i++) {
+		if (GPIO_Pin == InterruptPinList[i].gpio_pin) {
+			interrupt.index = i;
+			interrupt.timestamp = __HAL_TIM_GET_COUNTER(&htim2);
+			osMessageQueuePut(InterruptQueueHandle, &interrupt, 0, 0);
 		}
 	}
 

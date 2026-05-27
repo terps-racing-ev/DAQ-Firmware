@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "managers/can_manager.h"
+#include "managers/interrupt_manager.h"
 #include "managers/config_manager.h"
 #include "managers/pwm_manager.h"
 /* USER CODE END Includes */
@@ -196,6 +197,7 @@ int main(void)
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   Config_Init();
+  Interrupt_Manager_Init();
   CAN_Manager_Init();
   /* USER CODE END RTOS_QUEUES */
 

@@ -37,7 +37,7 @@ static void WheelSpeed_PackData(WheelSpeed_Data_t* wsp_data, CAN_Message_t* msg)
   */
 void WheelSpeed_Init(WheelSpeed_Data_t* wsp_data)
 {
-    Interrupt_Init(&wsp_data->interrupt);
+    Interrupt_InitData(&wsp_data->interrupt);
 
     wsp_data->rpm = 0;
     wsp_data->mph = 0;
@@ -63,7 +63,7 @@ void WheelSpeed_Update(WheelSpeed_Data_t* wsp_data)
 
     now = __HAL_TIM_GET_COUNTER(&htim2);
     if (now - last_pulse_time > WSP_TIMEOUT_US) {
-        // Interrupt_Reset(&wsp_data->interrupt);
+        // Interrupt_ResetData(&wsp_data->interrupt);
         wsp_data->timeout = true;
         return;
     }

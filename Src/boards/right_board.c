@@ -64,14 +64,14 @@ void DBR_Config(void)
 	};
 
 	SensorList[0] = wsp_br;
-	Interrupt_Config(SensorList[0].gpio_pin, &SensorList[0].wsp_data.interrupt);
+	Interrupt_ConfigPin(SensorList[0].gpio_pin, &SensorList[0].wsp_data.interrupt);
 
 	SensorList[1] = shock_br;
 	SensorList[2] = ct_motor;
 	SensorList[3] = ct_inv;
 
 	SensorList[4] = tach_r;
-	Interrupt_Config(SensorList[4].gpio_pin, &SensorList[4].tach_data.interrupt);
+	Interrupt_ConfigPin(SensorList[4].gpio_pin, &SensorList[4].tach_data.interrupt);
 
 	PWM_ACTIVE = true;
 	INV_TEMP_PTR = &SensorList[3].ct_data.temp;

@@ -26,7 +26,8 @@
 #include <stdbool.h>
 
 /* Defines -------------------------------------------------------------------*/
-#define MAX_NUM_INTERRUPTS 6
+#define MAX_NUM_INTERRUPT_PINS 6
+#define INTERRUPT_QUEUE_SIZE 8
 
 /* External Variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim2;
@@ -47,11 +48,19 @@ typedef struct {
 
 } Interrupt_Data_t;
 
-/* Interrupt Structure */
+/* Interrupt Pin Structure */
 typedef struct {
 
 	uint16_t gpio_pin;
 	Interrupt_Data_t* int_data;
+
+} Interrupt_Pin_t;
+
+/* Interrupt Structure */
+typedef struct {
+
+	uint8_t index;
+	uint32_t timestamp;
 
 } Interrupt_t;
 
@@ -65,26 +74,32 @@ typedef struct {
 void Interrupt_ManagerTask(void *argument);
 
 /**
-  * @brief  Add interrupt to interrupt list
+  * @brief  Initialize interrupt manager
+  * @retval HAL_StatusTypeDef
+  */
+HAL_StatusTypeDef Interrupt_Manager_Init(void);
+
+/**
+  * @brief  Add interrupt pin to interrupt pin list
   * @param  gpio_pin: GPIO pin triggering the interrupt
-  * @param  int_data: Pointer to data structure for the interrupt
+  * @param  int_data: Pointer to data structure for the interrupt pin
   * @retval None
   */
-void Interrupt_Config(uint16_t gpio_pin, Interrupt_Data_t* int_data);
+void Interrupt_ConfigPin(uint16_t gpio_pin, Interrupt_Data_t* int_data);
 
 /**
   * @brief  Initialize interrupt data and moving average
   * @param  int_data: Pointer to interrupt data structure
   * @retval None
   */
-void Interrupt_Init(Interrupt_Data_t* int_data);
+void Interrupt_InitData(Interrupt_Data_t* int_data);
 
 /**
   * @brief  Reset interrupt data and moving average
   * @param  int_data: Pointer to interrupt data structure
   * @retval None
   */
-void Interrupt_Reset(Interrupt_Data_t* int_data);
+void Interrupt_ResetData(Interrupt_Data_t* int_data);
 
 /**
   * @brief  Get last pulse time
