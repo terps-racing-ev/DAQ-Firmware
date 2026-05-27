@@ -1,0 +1,4 @@
+../Src/sensors/linear_pot.c:32:6:LinearPot_Init	1
+../Src/sensors/linear_pot.c:47:6:LinearPot_Update	2
+../Src/sensors/linear_pot.c:69:13:LinearPot_PackData	1
+../Src/sensors/linear_pot.c:88:6:LinearPot_SendCAN	1

@@ -1,0 +1,6 @@
+../Drivers/CMSIS/Include/core_cm4.h:1933:34:__NVIC_SystemReset	1
+../Src/managers/config_manager.c:45:6:Config_Init	5
+../Src/managers/config_manager.c:84:8:Config_SetBoardID	3
+../Src/managers/config_manager.c:107:9:Config_GetBoardID	3
+../Src/managers/config_manager.c:130:16:Config_ReadBoardIDFromFlash	4
+../Src/managers/config_manager.c:155:15:Config_WriteBoardIDToFlash	6

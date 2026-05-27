@@ -1,0 +1,4 @@
+../Src/managers/sensor_manager.c:33:6:Sensor_ManagerTask	6
+../Src/managers/sensor_manager.c:75:6:Sensor_Init	7
+../Src/managers/sensor_manager.c:105:6:Sensor_Update	8
+../Src/managers/sensor_manager.c:138:6:Sensor_SendCAN	8

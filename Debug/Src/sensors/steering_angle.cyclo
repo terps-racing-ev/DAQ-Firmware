@@ -1,0 +1,4 @@
+../Src/sensors/steering_angle.c:32:6:SteeringAngle_Init	1
+../Src/sensors/steering_angle.c:47:6:SteeringAngle_Update	4
+../Src/sensors/steering_angle.c:78:13:SteeringAngle_PackData	1
+../Src/sensors/steering_angle.c:97:6:SteeringAngle_SendCAN	1

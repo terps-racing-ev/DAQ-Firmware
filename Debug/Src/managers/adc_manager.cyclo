@@ -1,0 +1,6 @@
+../Src/managers/adc_manager.c:33:6:ADC_Init	1
+../Src/managers/adc_manager.c:49:19:ADC_Update	2
+../Src/managers/adc_manager.c:67:26:ADC_ConfigureChannel	1
+../Src/managers/adc_manager.c:88:19:ADC_Read	4
+../Src/managers/adc_manager.c:122:17:ADC_CalculateVREF	2
+../Src/managers/adc_manager.c:140:10:ADC_ConvertToUnscaledMV	1

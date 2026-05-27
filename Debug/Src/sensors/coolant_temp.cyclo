@@ -1,0 +1,4 @@
+../Src/sensors/coolant_temp.c:39:6:CoolantTemp_Init	1
+../Src/sensors/coolant_temp.c:54:6:CoolantTemp_Update	4
+../Src/sensors/coolant_temp.c:88:13:CoolantTemp_PackData	1
+../Src/sensors/coolant_temp.c:107:6:CoolantTemp_SendCAN	1

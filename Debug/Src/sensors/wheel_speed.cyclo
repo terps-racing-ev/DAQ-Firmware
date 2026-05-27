@@ -1,0 +1,6 @@
+../Src/sensors/wheel_speed.c:38:6:WheelSpeed_Init	1
+../Src/sensors/wheel_speed.c:53:6:WheelSpeed_Update	3
+../Src/sensors/wheel_speed.c:88:13:WheelSpeed_PackData	1
+../Src/sensors/wheel_speed.c:109:6:WheelSpeed_SendCAN	1
+../Src/sensors/wheel_speed.c:125:13:Odo_PackData	1
+../Src/sensors/wheel_speed.c:147:6:Odo_SendCAN	1

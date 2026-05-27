@@ -1,0 +1,4 @@
+../Src/sensors/tach.c:35:6:Tach_Init	1
+../Src/sensors/tach.c:49:6:Tach_Update	3
+../Src/sensors/tach.c:83:13:Tach_PackData	1
+../Src/sensors/tach.c:104:6:Tach_SendCAN	1

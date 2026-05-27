@@ -1,0 +1,4 @@
+../Src/sensors/pitot_tube.c:37:6:PitotTube_Init	1
+../Src/sensors/pitot_tube.c:55:6:PitotTube_Update	5
+../Src/sensors/pitot_tube.c:98:13:PitotTube_PackData	1
+../Src/sensors/pitot_tube.c:117:6:PitotTube_SendCAN	1

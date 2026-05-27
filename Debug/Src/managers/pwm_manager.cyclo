@@ -1,0 +1,5 @@
+../Src/managers/pwm_manager.c:44:6:PWM_ManagerTask	2
+../Src/managers/pwm_manager.c:75:6:PWM_Init	1
+../Src/managers/pwm_manager.c:130:6:PWM_SetInvTemp	1
+../Src/managers/pwm_manager.c:144:15:PWM_GetInvTemp	1
+../Src/managers/pwm_manager.c:163:17:PWM_CalculateValue	6

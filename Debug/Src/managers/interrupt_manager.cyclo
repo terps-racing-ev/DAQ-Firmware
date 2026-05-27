@@ -1,0 +1,10 @@
+../Src/managers/interrupt_manager.c:39:6:Interrupt_ManagerTask	2
+../Src/managers/interrupt_manager.c:59:19:Interrupt_Manager_Init	2
+../Src/managers/interrupt_manager.c:77:6:Interrupt_ConfigPin	1
+../Src/managers/interrupt_manager.c:91:6:Interrupt_InitData	1
+../Src/managers/interrupt_manager.c:110:13:Interrupt_Handler	1
+../Src/managers/interrupt_manager.c:130:6:Interrupt_ResetData	1
+../Src/managers/interrupt_manager.c:149:10:Interrupt_GetLastPulseTime	1
+../Src/managers/interrupt_manager.c:168:10:Interrupt_GetAverageDelta	1
+../Src/managers/interrupt_manager.c:187:10:Interrupt_GetTicks	1
+../Src/managers/interrupt_manager.c:206:6:HAL_GPIO_EXTI_Callback	3

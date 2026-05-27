@@ -1,0 +1,12 @@
+../Drivers/CMSIS/Include/core_cm4.h:1933:34:__NVIC_SystemReset	1
+../Src/managers/can_manager.c:46:6:CAN_ManagerTask	3
+../Src/managers/can_manager.c:85:19:CAN_Manager_Init	4
+../Src/managers/can_manager.c:116:19:CAN_SendMessage	2
+../Src/managers/can_manager.c:131:17:CAN_GetNotificationFlags	1
+../Src/managers/can_manager.c:148:13:CAN_ProcessRxMessage	2
+../Src/managers/can_manager.c:171:13:CAN_ProcessTxQueue	2
+../Src/managers/can_manager.c:188:26:CAN_TxMessage	2
+../Src/managers/can_manager.c:212:26:CAN_SendHeartbeat	1
+../Src/managers/can_manager.c:237:13:CAN_IsMessageForThisBoard	1
+../Src/managers/can_manager.c:251:6:HAL_CAN_RxFifo0MsgPendingCallback	3
+../Src/managers/can_manager.c:274:6:HAL_CAN_RxFifo1MsgPendingCallback	3

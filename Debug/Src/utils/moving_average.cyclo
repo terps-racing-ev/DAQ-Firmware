@@ -1,0 +1,3 @@
+../Src/utils/moving_average.c:29:6:MovingAverage_Init	3
+../Src/utils/moving_average.c:46:10:MovingAverage_Update	2
+../Src/utils/moving_average.c:63:6:MovingAverage_Reset	2
