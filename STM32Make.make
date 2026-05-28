@@ -176,9 +176,14 @@ LSS = $(DP) -h -S
 REMOVE_DIRECTORY_COMMAND = rm -fR
 mkdir_function = mkdir -p $(1)
 ifeq ($(OS),Windows_NT)
-  convert_to_windows_path = $(strip $(subst /,\,$(patsubst %/,%,$(1))))
-  REMOVE_DIRECTORY_COMMAND = cmd /c rd /s /q
-  mkdir_function = cmd /e:on /c if not exist $(call convert_to_windows_path,$(1)) md $(call convert_to_windows_path,$(1))
+  ifneq ($(findstring sh,$(SHELL)),)
+    REMOVE_DIRECTORY_COMMAND = rm -fR
+    mkdir_function = mkdir -p $(1)
+  else
+    convert_to_windows_path = $(strip $(subst /,\,$(patsubst %/,%,$(1))))
+    REMOVE_DIRECTORY_COMMAND = "$(COMSPEC)" /c rd /s /q
+    mkdir_function = "$(COMSPEC)" /e:on /c if not exist $(call convert_to_windows_path,$(1)) md $(call convert_to_windows_path,$(1))
+  endif
 endif
 
 
