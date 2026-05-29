@@ -63,7 +63,9 @@ void WheelSpeed_Update(WheelSpeed_Data_t* wsp_data)
 
     now = __HAL_TIM_GET_COUNTER(&htim2);
     if (now - last_pulse_time > WSP_TIMEOUT_US) {
-        // Interrupt_ResetData(&wsp_data->interrupt);
+        Interrupt_ResetData(&wsp_data->interrupt);
+        wsp_data->rpm = 0;
+        wsp_data->mph = 0;
         wsp_data->timeout = true;
         return;
     }
@@ -90,7 +92,7 @@ static void WheelSpeed_PackData(WheelSpeed_Data_t* wsp_data, CAN_Message_t* msg)
     uint32_t avg_delta = Interrupt_GetAverageDelta(&wsp_data->interrupt);
 
     msg->data[0] = (wsp_data->valid) | (wsp_data->timeout << 1);
-	msg->data[1] = avg_delta & 0xFF;
+	  msg->data[1] = avg_delta & 0xFF;
     msg->data[2] = (avg_delta >> 8) & 0xFF;
     msg->data[3] = (avg_delta >> 16) & 0xFF;
     msg->data[4] = avg_delta >> 24;
@@ -128,13 +130,13 @@ static void Odo_PackData(Odo_Data_t* odo_data, CAN_Message_t* msg)
     uint32_t r_ticks = Interrupt_GetTicks(&odo_data->r_data->interrupt);
 
     msg->data[0] = l_ticks & 0xFF;
-	msg->data[1] = (l_ticks >> 8) & 0xFF;
-	msg->data[2] = (l_ticks >> 16) & 0xFF;
-	msg->data[3] = l_ticks >> 24;
-	msg->data[4] = r_ticks & 0xFF;
-	msg->data[5] = (r_ticks >> 8) & 0xFF;
-	msg->data[6] = (r_ticks >> 16) & 0xFF;
-	msg->data[7] = r_ticks >> 24;
+    msg->data[1] = (l_ticks >> 8) & 0xFF;
+    msg->data[2] = (l_ticks >> 16) & 0xFF;
+    msg->data[3] = l_ticks >> 24;
+    msg->data[4] = r_ticks & 0xFF;
+    msg->data[5] = (r_ticks >> 8) & 0xFF;
+    msg->data[6] = (r_ticks >> 16) & 0xFF;
+    msg->data[7] = r_ticks >> 24;
 
 }
 

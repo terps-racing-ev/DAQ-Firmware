@@ -59,7 +59,8 @@ void Tach_Update(Tach_Data_t* tach_data)
 
     now = __HAL_TIM_GET_COUNTER(&htim2);
     if (now - last_pulse_time > TACH_TIMEOUT_US) {
-        // Interrupt_ResetData(&tach_data->interrupt);
+        Interrupt_ResetData(&tach_data->interrupt);
+        tach_data->rpm = 0;
         tach_data->timeout = true;
         return;
     }

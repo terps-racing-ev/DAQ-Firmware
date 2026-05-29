@@ -132,9 +132,6 @@ void Interrupt_ResetData(Interrupt_Data_t* int_data)
 	osMutexAcquire(int_data->mutex, osWaitForever);
 
 	int_data->delta = 0;
-	int_data->last_pulse_time = __HAL_TIM_GET_COUNTER(&htim2);
-	int_data->ticks = 0;
-
 	MovingAverage_Reset(&int_data->ma);
 
 	osMutexRelease(int_data->mutex);
