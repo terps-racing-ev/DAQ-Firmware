@@ -117,10 +117,10 @@ DBC message: `DBF_WSPD_FL`, raw ID `0x0DA10000`.
 Display:
 
 - `DBF_WSPD_FL_RPM` in RPM.
+- `DBF_WSPD_FL_MPH` in MPH.
 - `DBF_WSPD_FL_Avg_Delta` in us.
 - `DBF_WSPD_FL_Valid` as health state.
 - `DBF_WSPD_FL_Timeout` as fault state.
-- Optional derived speed if desired, but the DBC currently publishes RPM, not MPH, for wheel-speed frames.
 
 ### Wheel Speed FR
 
@@ -129,6 +129,7 @@ DBC message: `DBF_WSPD_FR`, raw ID `0x0DA11000`.
 Display:
 
 - `DBF_WSPD_FR_RPM` in RPM.
+- `DBF_WSPD_FR_MPH` in MPH.
 - `DBF_WSPD_FR_Avg_Delta` in us.
 - `DBF_WSPD_FR_Valid` as health state.
 - `DBF_WSPD_FR_Timeout` as fault state.
@@ -190,6 +191,7 @@ Firmware constants and behavior:
 - Timer starts automatically on the first FL or FR wheel-speed pulse after it is enabled.
 - Timer finishes when the computed 246 ft target is reached.
 - Results are published as three individual elapsed times: FL-only, FR-only, and averaged front wheels.
+- Live distance is published for FL, FR, and averaged front wheels in feet.
 
 ### Control Frame
 
@@ -237,11 +239,28 @@ Display these times:
 - `DBF_Accel_Timer_FR_Time` in ms.
 - `DBF_Accel_Timer_Avg_Time` in ms.
 
+### Distance Frame
+
+DBC message: `DBF_Accel_Timer_Distance`, raw ID `0x0DA81000`.
+
+Display these status bits:
+
+- `DBF_Accel_Timer_Dist_Enabled`.
+- `DBF_Accel_Timer_Dist_Running`.
+- `DBF_Accel_Timer_Dist_Complete`.
+
+Display these live distances:
+
+- `DBF_Accel_Timer_FL_Distance` in ft.
+- `DBF_Accel_Timer_FR_Distance` in ft.
+- `DBF_Accel_Timer_Avg_Distance` in ft.
+
 UI behavior:
 
 - Before enable: show Disabled.
 - After enable and before motion: show Armed / Waiting for launch.
 - After first wheel pulse: show Running.
+- During the run: show real-time FL, FR, and average distance toward 246 ft.
 - Once each result completes: lock in and highlight that result.
 - Once all completion bits are true: show Complete.
 - Show times in seconds with millisecond precision, while preserving raw ms in tooltips or detail views. Example: `4.823 s` from `4823 ms`.
@@ -258,6 +277,7 @@ DBC message: `DBL_WSPD_BL`, raw ID `0x0DB10000`.
 Display:
 
 - `DBL_WSPD_BL_RPM`.
+- `DBL_WSPD_BL_MPH`.
 - `DBL_WSPD_BL_Avg_Delta` in us.
 - Valid flag.
 - Timeout flag.
@@ -315,6 +335,7 @@ DBC message: `DBR_WSPD_BR`, raw ID `0x0DC10000`.
 Display:
 
 - `DBR_WSPD_BR_RPM`.
+- `DBR_WSPD_BR_MPH`.
 - `DBR_WSPD_BR_Avg_Delta` in us.
 - Valid flag.
 - Timeout flag.
@@ -433,13 +454,13 @@ Useful top-level metrics:
 
 - All board online count: `0/3` through `3/3`.
 - Total active faults.
-- Front wheel speeds FL/FR.
-- Rear wheel speeds BL/BR.
+- Front wheel speeds FL/FR in RPM and MPH.
+- Rear wheel speeds BL/BR in RPM and MPH.
 - Steering angle.
 - Pitot speed.
 - Highest coolant temperature.
 - Tach L/R.
-- Acceleration timer state and best/average result.
+- Acceleration timer state, live distance, and best/average result.
 
 ## Raw CAN / Diagnostics Page
 

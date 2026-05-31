@@ -42,6 +42,7 @@
 #define STEERING_ANGLE_CAN_ID 		0x0DA30000
 #define PITOT_CAN_ID 				0x0DA40000
 #define ACCEL_TIMER_CAN_ID 		0x0DA80000
+#define ACCEL_TIMER_DISTANCE_CAN_ID 	0x0DA81000
 #define ODO_LR_CAN_ID       		0x0DA90000
 
 /* External Variables --------------------------------------------------------*/

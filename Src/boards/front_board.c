@@ -99,5 +99,6 @@ void DBF_Config(void)
 	SensorList[7] = accel_timer;
 	SensorList[7].accel_timer_data.l_data = &SensorList[0].wsp_data;
 	SensorList[7].accel_timer_data.r_data = &SensorList[1].wsp_data;
+	SensorList[7].accel_timer_data.distance_can_id = ACCEL_TIMER_DISTANCE_CAN_ID;
 
 }

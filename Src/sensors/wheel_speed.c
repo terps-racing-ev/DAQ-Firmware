@@ -24,16 +24,21 @@
 static const uint32_t US_PER_MIN = 60000000;
 static const uint32_t US_PER_HOUR = 3600000000;
 static const uint32_t INCHES_PER_MILE = 63360;
+static const uint16_t MPH_SCALE = 100;
 static const float ACCEL_TIMER_DISTANCE_FT = 246.0f;
 static AccelTimer_Data_t* accel_timer_instance = NULL;
 
 /* Private Function Prototypes -----------------------------------------------*/
 static void WheelSpeed_PackData(WheelSpeed_Data_t* wsp_data, CAN_Message_t* msg);
 static void AccelTimer_PackData(AccelTimer_Data_t* accel_timer_data, CAN_Message_t* msg);
+static void AccelTimer_PackDistanceData(AccelTimer_Data_t* accel_timer_data, CAN_Message_t* msg);
 static void AccelTimer_ResetRun(AccelTimer_Data_t* accel_timer_data);
 static void AccelTimer_CheckCompletion(AccelTimer_Data_t* accel_timer_data, uint32_t timestamp);
 static uint32_t AccelTimer_GetTargetTicks(void);
 static uint16_t AccelTimer_GetElapsedMs(uint32_t start_time_us, uint32_t finish_time_us);
+static uint16_t AccelTimer_GetDistanceFtHundredths(uint32_t ticks);
+static uint16_t AccelTimer_GetAverageDistanceFtHundredths(uint32_t l_ticks, uint32_t r_ticks);
+static uint8_t WheelSpeed_GetMphByte(wsp_type mph);
 static void AccelTimer_Lock(AccelTimer_Data_t* accel_timer_data);
 static void AccelTimer_Unlock(AccelTimer_Data_t* accel_timer_data);
 
@@ -85,7 +90,7 @@ void WheelSpeed_Update(WheelSpeed_Data_t* wsp_data)
 
     if (avg_delta) {
     	wsp_data->rpm = (wsp_type) (US_PER_MIN / avg_delta / WSP_SPOKES);
-    	wsp_data->mph = (wsp_type) (100 * 2 * M_PI * WSP_ROLLING_RADIUS * US_PER_HOUR / avg_delta / WSP_SPOKES / INCHES_PER_MILE); // mph*100
+    	wsp_data->mph = (wsp_type) (MPH_SCALE * M_PI * WSP_FRONT_WHEEL_DIAMETER_IN * US_PER_HOUR / avg_delta / WSP_SPOKES / INCHES_PER_MILE); // mph*100
     }
 
 }
@@ -107,7 +112,7 @@ static void WheelSpeed_PackData(WheelSpeed_Data_t* wsp_data, CAN_Message_t* msg)
     msg->data[4] = avg_delta >> 24;
     msg->data[5] = wsp_data->rpm & 0xFF;
     msg->data[6] = wsp_data->rpm >> 8;
-    msg->data[7] = 0;
+    msg->data[7] = WheelSpeed_GetMphByte(wsp_data->mph);
 
 }
 
@@ -271,7 +276,40 @@ void AccelTimer_ProcessInterrupt(Interrupt_Data_t* int_data, uint32_t timestamp)
     accel_timer_data->r_ticks++;
   }
 
+  accel_timer_data->l_distance_ft_hundredths = AccelTimer_GetDistanceFtHundredths(accel_timer_data->l_ticks);
+  accel_timer_data->r_distance_ft_hundredths = AccelTimer_GetDistanceFtHundredths(accel_timer_data->r_ticks);
+  accel_timer_data->avg_distance_ft_hundredths = AccelTimer_GetAverageDistanceFtHundredths(accel_timer_data->l_ticks, accel_timer_data->r_ticks);
+
   AccelTimer_CheckCompletion(accel_timer_data, timestamp);
+  AccelTimer_Unlock(accel_timer_data);
+
+}
+
+/**
+  * @brief  Pack acceleration timer distance data into CAN message
+  * @param  accel_timer_data: Pointer to acceleration timer data structure
+  * @param  msg: Pointer to CAN message structure
+  * @retval None
+  */
+static void AccelTimer_PackDistanceData(AccelTimer_Data_t* accel_timer_data, CAN_Message_t* msg)
+{
+  uint8_t flags;
+
+  AccelTimer_Lock(accel_timer_data);
+
+  flags = (accel_timer_data->enabled) |
+      (accel_timer_data->running << 1) |
+      (accel_timer_data->complete << 2);
+
+  msg->data[0] = flags;
+  msg->data[1] = 0;
+  msg->data[2] = accel_timer_data->l_distance_ft_hundredths & 0xFF;
+  msg->data[3] = accel_timer_data->l_distance_ft_hundredths >> 8;
+  msg->data[4] = accel_timer_data->r_distance_ft_hundredths & 0xFF;
+  msg->data[5] = accel_timer_data->r_distance_ft_hundredths >> 8;
+  msg->data[6] = accel_timer_data->avg_distance_ft_hundredths & 0xFF;
+  msg->data[7] = accel_timer_data->avg_distance_ft_hundredths >> 8;
+
   AccelTimer_Unlock(accel_timer_data);
 
 }
@@ -322,6 +360,12 @@ void AccelTimer_SendCAN(AccelTimer_Data_t* accel_timer_data, uint32_t can_id)
   AccelTimer_PackData(accel_timer_data, &msg);
   CAN_SendMessage(&msg);
 
+  if (accel_timer_data->distance_can_id != 0) {
+    msg.id = accel_timer_data->distance_can_id;
+    AccelTimer_PackDistanceData(accel_timer_data, &msg);
+    CAN_SendMessage(&msg);
+  }
+
 }
 
 /**
@@ -340,6 +384,9 @@ static void AccelTimer_ResetRun(AccelTimer_Data_t* accel_timer_data)
   accel_timer_data->l_elapsed_ms = 0;
   accel_timer_data->r_elapsed_ms = 0;
   accel_timer_data->avg_elapsed_ms = 0;
+  accel_timer_data->l_distance_ft_hundredths = 0;
+  accel_timer_data->r_distance_ft_hundredths = 0;
+  accel_timer_data->avg_distance_ft_hundredths = 0;
   accel_timer_data->running = false;
   accel_timer_data->complete = false;
   accel_timer_data->l_complete = false;
@@ -412,6 +459,61 @@ static uint16_t AccelTimer_GetElapsedMs(uint32_t start_time_us, uint32_t finish_
   }
 
   return (uint16_t)elapsed_ms;
+
+}
+
+/**
+  * @brief  Get wheel distance in hundredths of a foot
+  * @param  ticks: Wheel-speed tick count
+  * @retval Distance in ft*100
+  */
+static uint16_t AccelTimer_GetDistanceFtHundredths(uint32_t ticks)
+{
+  float distance_ft = ticks * M_PI * WSP_FRONT_WHEEL_DIAMETER_IN / WSP_SPOKES / 12.0f;
+  uint32_t distance_ft_hundredths = (uint32_t)(distance_ft * 100.0f);
+
+  if (distance_ft_hundredths > UINT16_MAX) {
+    return UINT16_MAX;
+  }
+
+  return (uint16_t)distance_ft_hundredths;
+
+}
+
+/**
+  * @brief  Get average front-wheel distance in hundredths of a foot
+  * @param  l_ticks: Left wheel-speed tick count
+  * @param  r_ticks: Right wheel-speed tick count
+  * @retval Average distance in ft*100
+  */
+static uint16_t AccelTimer_GetAverageDistanceFtHundredths(uint32_t l_ticks, uint32_t r_ticks)
+{
+  float avg_ticks = ((float)l_ticks + (float)r_ticks) / 2.0f;
+  float distance_ft = avg_ticks * M_PI * WSP_FRONT_WHEEL_DIAMETER_IN / WSP_SPOKES / 12.0f;
+  uint32_t distance_ft_hundredths = (uint32_t)(distance_ft * 100.0f);
+
+  if (distance_ft_hundredths > UINT16_MAX) {
+    return UINT16_MAX;
+  }
+
+  return (uint16_t)distance_ft_hundredths;
+
+}
+
+/**
+  * @brief  Get packed wheel speed MPH byte
+  * @param  mph: Wheel speed in mph*100
+  * @retval Saturated MPH byte
+  */
+static uint8_t WheelSpeed_GetMphByte(wsp_type mph)
+{
+  uint16_t rounded_mph = (mph + (MPH_SCALE / 2)) / MPH_SCALE;
+
+  if (rounded_mph > UINT8_MAX) {
+    return UINT8_MAX;
+  }
+
+  return (uint8_t)rounded_mph;
 
 }
 

@@ -79,6 +79,9 @@ typedef struct {
   uint16_t l_elapsed_ms;
   uint16_t r_elapsed_ms;
   uint16_t avg_elapsed_ms;
+  uint16_t l_distance_ft_hundredths;
+  uint16_t r_distance_ft_hundredths;
+  uint16_t avg_distance_ft_hundredths;
 
   bool enabled;
   bool running;
@@ -86,6 +89,8 @@ typedef struct {
   bool l_complete;
   bool r_complete;
   bool avg_complete;
+
+  uint32_t distance_can_id;
 
 } AccelTimer_Data_t;
 

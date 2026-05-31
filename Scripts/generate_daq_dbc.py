@@ -31,6 +31,7 @@ FIRMWARE_CAN_IDS = {
 	"DBF_Pitot": 0x0DA40000,
 	"DBF_Accel_Timer_Cmd": 0x0DA000C3,
 	"DBF_Accel_Timer": 0x0DA80000,
+	"DBF_Accel_Timer_Distance": 0x0DA81000,
 	"DBF_ODO_LR": 0x0DA90000,
 	"DBL_Status": 0x0DB00000,
 	"DBL_WSPD_BL": 0x0DB10000,
@@ -66,6 +67,7 @@ MESSAGES = [
 			' SG_ DBF_WSPD_FL_Timeout : 1|1@1+ (1.0,0.0) [0.0|1.0] "" Vector__XXX',
 			' SG_ DBF_WSPD_FL_Avg_Delta : 8|32@1+ (1.0,0.0) [0.0|4294967295.0] "us" Vector__XXX',
 			' SG_ DBF_WSPD_FL_RPM : 40|16@1- (1.0,0.0) [-6000.0|6000.0] "RPM" Vector__XXX',
+			' SG_ DBF_WSPD_FL_MPH : 56|8@1+ (1.0,0.0) [0.0|255.0] "MPH" Vector__XXX',
 		],
 	},
 	{
@@ -77,6 +79,7 @@ MESSAGES = [
 			' SG_ DBF_WSPD_FR_Timeout : 1|1@1+ (1.0,0.0) [0.0|1.0] "" Vector__XXX',
 			' SG_ DBF_WSPD_FR_Avg_Delta : 8|32@1+ (1.0,0.0) [0.0|4294967295.0] "us" Vector__XXX',
 			' SG_ DBF_WSPD_FR_RPM : 40|16@1- (1.0,0.0) [-6000.0|6000.0] "RPM" Vector__XXX',
+			' SG_ DBF_WSPD_FR_MPH : 56|8@1+ (1.0,0.0) [0.0|255.0] "MPH" Vector__XXX',
 		],
 	},
 	{
@@ -152,6 +155,19 @@ MESSAGES = [
 		],
 	},
 	{
+		"name": "DBF_Accel_Timer_Distance",
+		"node": "DBF",
+		"raw_id": FIRMWARE_CAN_IDS["DBF_Accel_Timer_Distance"],
+		"signals": [
+			' SG_ DBF_Accel_Timer_Dist_Enabled : 0|1@1+ (1.0,0.0) [0.0|1.0] "" Vector__XXX',
+			' SG_ DBF_Accel_Timer_Dist_Running : 1|1@1+ (1.0,0.0) [0.0|1.0] "" Vector__XXX',
+			' SG_ DBF_Accel_Timer_Dist_Complete : 2|1@1+ (1.0,0.0) [0.0|1.0] "" Vector__XXX',
+			' SG_ DBF_Accel_Timer_FL_Distance : 16|16@1+ (0.01,0.0) [0.0|655.35] "ft" Vector__XXX',
+			' SG_ DBF_Accel_Timer_FR_Distance : 32|16@1+ (0.01,0.0) [0.0|655.35] "ft" Vector__XXX',
+			' SG_ DBF_Accel_Timer_Avg_Distance : 48|16@1+ (0.01,0.0) [0.0|655.35] "ft" Vector__XXX',
+		],
+	},
+	{
 		"name": "DBF_ODO_LR",
 		"node": "DBF",
 		"raw_id": FIRMWARE_CAN_IDS["DBF_ODO_LR"],
@@ -177,6 +193,7 @@ MESSAGES = [
 			' SG_ DBL_WSPD_BL_Timeout : 1|1@1+ (1.0,0.0) [0.0|1.0] "" Vector__XXX',
 			' SG_ DBL_WSPD_BL_Avg_Delta : 8|32@1+ (1.0,0.0) [0.0|4294967295.0] "us" Vector__XXX',
 			' SG_ DBL_WSPD_BL_RPM : 40|16@1- (1.0,0.0) [-6000.0|6000.0] "RPM" Vector__XXX',
+			' SG_ DBL_WSPD_BL_MPH : 56|8@1+ (1.0,0.0) [0.0|255.0] "MPH" Vector__XXX',
 		],
 	},
 	{
@@ -258,6 +275,7 @@ MESSAGES = [
 			' SG_ DBR_WSPD_BR_Timeout : 1|1@1+ (1.0,0.0) [0.0|1.0] "" Vector__XXX',
 			' SG_ DBR_WSPD_BR_Avg_Delta : 8|32@1+ (1.0,0.0) [0.0|4294967295.0] "us" Vector__XXX',
 			' SG_ DBR_WSPD_BR_RPM : 40|16@1- (1.0,0.0) [-6000.0|6000.0] "RPM" Vector__XXX',
+			' SG_ DBR_WSPD_BR_MPH : 56|8@1+ (1.0,0.0) [0.0|255.0] "MPH" Vector__XXX',
 		],
 	},
 	{
@@ -332,6 +350,9 @@ VALUE_TABLES = [
 	f'VAL_ {dbc_id(FIRMWARE_CAN_IDS["DBF_Accel_Timer"])} DBF_Accel_Timer_FL_Complete 0 "FALSE" 1 "TRUE" ;',
 	f'VAL_ {dbc_id(FIRMWARE_CAN_IDS["DBF_Accel_Timer"])} DBF_Accel_Timer_FR_Complete 0 "FALSE" 1 "TRUE" ;',
 	f'VAL_ {dbc_id(FIRMWARE_CAN_IDS["DBF_Accel_Timer"])} DBF_Accel_Timer_Avg_Complete 0 "FALSE" 1 "TRUE" ;',
+	f'VAL_ {dbc_id(FIRMWARE_CAN_IDS["DBF_Accel_Timer_Distance"])} DBF_Accel_Timer_Dist_Enabled 0 "FALSE" 1 "TRUE" ;',
+	f'VAL_ {dbc_id(FIRMWARE_CAN_IDS["DBF_Accel_Timer_Distance"])} DBF_Accel_Timer_Dist_Running 0 "FALSE" 1 "TRUE" ;',
+	f'VAL_ {dbc_id(FIRMWARE_CAN_IDS["DBF_Accel_Timer_Distance"])} DBF_Accel_Timer_Dist_Complete 0 "FALSE" 1 "TRUE" ;',
 	'VAL_ 2377187328 DBL_WSPD_BL_Valid 0 "FALSE" 1 "TRUE" ;',
 	'VAL_ 2377187328 DBL_WSPD_BL_Timeout 0 "FALSE" 1 "TRUE" ;',
 	'VAL_ 2377252864 DBL_Shock_BL_Valid 0 "FALSE" 1 "TRUE" ;',
@@ -365,6 +386,7 @@ VALUE_TABLES = [
 COMMENTS = [
 	f'CM_ BO_ {dbc_id(FIRMWARE_CAN_IDS["DBF_Accel_Timer_Cmd"])} "Front-board acceleration timer command. Send this extended frame to 0x0DA000C3 for DBF: command 0 disables the timer, 1 clears prior results and arms the timer, and 2 clears results while preserving the current enabled state.";',
 	f'CM_ BO_ {dbc_id(FIRMWARE_CAN_IDS["DBF_Accel_Timer"])} "Front-board acceleration timer result/status. After enable, the first FL or FR wheel-speed pulse starts timing. The timer uses a 17.66 in front tire diameter, 16 wheel-speed pulses per revolution, and a 246 ft target. Completion bits indicate valid FL-only, FR-only, and averaged-wheel elapsed times in milliseconds.";',
+	f'CM_ BO_ {dbc_id(FIRMWARE_CAN_IDS["DBF_Accel_Timer_Distance"])} "Front-board acceleration timer live distance. Distances use the 17.66 in front tire diameter and 16 wheel-speed pulses per revolution. FL, FR, and averaged front-wheel distances are reported in feet while the timer is armed/running and hold their final values after completion.";',
 ]
 
 
