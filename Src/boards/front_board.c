@@ -75,6 +75,12 @@ void DBF_Config(void)
 		.can_id = ODO_LR_CAN_ID
 	};
 
+	Sensor_t accel_timer = {
+		.type = ACCEL_TIMER,
+		.accel_timer_data = {0},
+		.can_id = ACCEL_TIMER_CAN_ID
+	};
+
 	SensorList[0] = wsp_fl;
 	Interrupt_ConfigPin(SensorList[0].gpio_pin, &SensorList[0].wsp_data.interrupt);
 
@@ -89,5 +95,9 @@ void DBF_Config(void)
 	SensorList[6] = odo;
 	SensorList[6].odo_data.l_data = &SensorList[0].wsp_data;
 	SensorList[6].odo_data.r_data = &SensorList[1].wsp_data;
+
+	SensorList[7] = accel_timer;
+	SensorList[7].accel_timer_data.l_data = &SensorList[0].wsp_data;
+	SensorList[7].accel_timer_data.r_data = &SensorList[1].wsp_data;
 
 }

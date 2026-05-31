@@ -18,6 +18,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "managers/can_manager.h"
 #include "cmsis_os.h"
+#include "sensors/wheel_speed.h"
 #include <stdbool.h>
 
 /* External Function Prototypes ----------------------------------------------*/
@@ -160,6 +161,11 @@ static void CAN_ProcessRxMessage(CAN_Message_t *msg)
     	// Reset command - trigger NVIC system reset
         NVIC_SystemReset();
         return;  // Never reached, but good practice
+    }
+
+    if (base_id == CAN_ACCEL_TIMER_CMD_BASE) {
+    	AccelTimer_ProcessCommand(msg->data[0]);
+    	return;
     }
 
 }

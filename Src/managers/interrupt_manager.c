@@ -17,6 +17,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "managers/interrupt_manager.h"
+#include "sensors/wheel_speed.h"
 
 /* Private Variables ---------------------------------------------------------*/
 osMessageQueueId_t InterruptQueueHandle = NULL;
@@ -117,6 +118,8 @@ static void Interrupt_Handler(Interrupt_Data_t* int_data, uint32_t timestamp)
     int_data->ticks++;
 
     int_data->avg_delta = MovingAverage_Update(&int_data->ma, int_data->delta);
+
+    AccelTimer_ProcessInterrupt(int_data, timestamp);
 
     osMutexRelease(int_data->mutex);
 

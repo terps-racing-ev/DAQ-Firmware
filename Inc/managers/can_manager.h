@@ -36,6 +36,7 @@
 #define CAN_STATUS_BASE				0x0D000000
 #define CAN_SET_BOARD_ID_CMD_BASE 	0x0D0000C1
 #define CAN_RESET_CMD_BASE 			0x0D0000C2
+#define CAN_ACCEL_TIMER_CMD_BASE 	0x0D0000C3
 
 /* External Variables --------------------------------------------------------*/
 extern CAN_HandleTypeDef hcan1;

@@ -93,6 +93,11 @@ void Sensor_Init(Sensor_t* sensor)
 		case WHEEL_SPEED:
 			WheelSpeed_Init(&sensor->wsp_data);
 			break;
+		case ODO:
+			break;
+		case ACCEL_TIMER:
+			AccelTimer_Init(&sensor->accel_timer_data);
+			break;
 	}
 
 }
@@ -126,6 +131,11 @@ void Sensor_Update(Sensor_t* sensor)
 		case WHEEL_SPEED:
 			WheelSpeed_Update(&sensor->wsp_data);
 			break;
+		case ODO:
+			break;
+		case ACCEL_TIMER:
+			AccelTimer_Update(&sensor->accel_timer_data);
+			break;
 	}
 
 }
@@ -158,6 +168,10 @@ void Sensor_SendCAN(Sensor_t* sensor)
 			break;
 		case ODO:
 			Odo_SendCAN(&sensor->odo_data, sensor->can_id);
+			break;
+		case ACCEL_TIMER:
+			AccelTimer_SendCAN(&sensor->accel_timer_data, sensor->can_id);
+			break;
 	}
 
 }
