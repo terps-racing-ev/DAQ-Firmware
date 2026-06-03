@@ -41,6 +41,9 @@ typedef struct {
 	uint32_t last_pulse_time;
 	uint32_t delta;
 	uint32_t ticks;
+	uint32_t cycle_ticks;
+	uint32_t cycle_min_delta_us;
+	uint32_t min_delta_us;
 
 	MovingAverage_Data_t ma;
 
@@ -88,6 +91,14 @@ HAL_StatusTypeDef Interrupt_Manager_Init(void);
 void Interrupt_ConfigPin(uint16_t gpio_pin, Interrupt_Data_t* int_data);
 
 /**
+  * @brief  Set minimum valid interval between interrupt pulses
+  * @param  int_data: Pointer to interrupt data structure
+  * @param  min_delta_us: Minimum valid pulse interval in microseconds
+  * @retval None
+  */
+void Interrupt_SetMinDelta(Interrupt_Data_t* int_data, uint32_t min_delta_us);
+
+/**
   * @brief  Initialize interrupt data and moving average
   * @param  int_data: Pointer to interrupt data structure
   * @retval None
@@ -121,5 +132,12 @@ uint32_t Interrupt_GetAverageDelta(Interrupt_Data_t* int_data);
   * @retval Ticks
   */
 uint32_t Interrupt_GetTicks(Interrupt_Data_t* int_data);
+
+/**
+  * @brief  Get ticks since last call and reset cycle tick count
+  * @param  int_data: Pointer to interrupt data structure
+  * @retval Ticks since last cycle
+  */
+void Interrupt_GetAndResetCycleStats(Interrupt_Data_t* int_data, uint32_t* ticks, uint32_t* min_delta_us);
 
 #endif // INTERRUPT_MANAGER_H

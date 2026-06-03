@@ -96,10 +96,28 @@ void Interrupt_InitData(Interrupt_Data_t* int_data)
 	int_data->delta = 0;
     int_data->last_pulse_time = 0;
     int_data->ticks = 0;
+    int_data->cycle_ticks = 0;
+    int_data->cycle_min_delta_us = 0;
 
     MovingAverage_Init(&int_data->ma, WINDOW_SIZE);
 
-    osMutexRelease(int_data->mutex);
+	osMutexRelease(int_data->mutex);
+
+}
+
+/**
+  * @brief  Set minimum valid interval between interrupt pulses
+  * @param  int_data: Pointer to interrupt data structure
+  * @param  min_delta_us: Minimum valid pulse interval in microseconds
+  * @retval None
+  */
+void Interrupt_SetMinDelta(Interrupt_Data_t* int_data, uint32_t min_delta_us)
+{
+	osMutexAcquire(int_data->mutex, osWaitForever);
+
+	int_data->min_delta_us = min_delta_us;
+
+	osMutexRelease(int_data->mutex);
 
 }
 
@@ -113,9 +131,31 @@ static void Interrupt_Handler(Interrupt_Data_t* int_data, uint32_t timestamp)
 	osMutexAcquire(int_data->mutex, osWaitForever);
 
 	uint32_t new_pulse_time = timestamp;
-    int_data->delta = new_pulse_time - int_data->last_pulse_time;
+	uint32_t delta = new_pulse_time - int_data->last_pulse_time;
+
+	if (int_data->last_pulse_time != 0 &&
+			int_data->min_delta_us != 0 &&
+			delta < int_data->min_delta_us) {
+		osMutexRelease(int_data->mutex);
+		return;
+	}
+
+	if (int_data->last_pulse_time == 0) {
+		int_data->last_pulse_time = new_pulse_time;
+		int_data->ticks++;
+		int_data->cycle_ticks++;
+		AccelTimer_ProcessInterrupt(int_data, timestamp);
+		osMutexRelease(int_data->mutex);
+		return;
+	}
+
+    int_data->delta = delta;
     int_data->last_pulse_time = new_pulse_time;
     int_data->ticks++;
+    int_data->cycle_ticks++;
+    if (int_data->cycle_min_delta_us == 0 || delta < int_data->cycle_min_delta_us) {
+    	int_data->cycle_min_delta_us = delta;
+    }
 
     int_data->avg_delta = MovingAverage_Update(&int_data->ma, int_data->delta);
 
@@ -135,6 +175,8 @@ void Interrupt_ResetData(Interrupt_Data_t* int_data)
 	osMutexAcquire(int_data->mutex, osWaitForever);
 
 	int_data->delta = 0;
+	int_data->cycle_ticks = 0;
+	int_data->cycle_min_delta_us = 0;
 	MovingAverage_Reset(&int_data->ma);
 
 	osMutexRelease(int_data->mutex);
@@ -195,6 +237,37 @@ uint32_t Interrupt_GetTicks(Interrupt_Data_t* int_data)
 	osMutexRelease(int_data->mutex);
 
 	return ticks;
+
+}
+
+/**
+  * @brief  Get pulse stats since last call and reset cycle stats
+  * @param  int_data: Pointer to interrupt data structure
+  * @param  ticks: Pointer to receive ticks since last cycle
+  * @param  min_delta_us: Pointer to receive shortest pulse interval since last cycle
+  * @retval None
+  */
+void Interrupt_GetAndResetCycleStats(Interrupt_Data_t* int_data, uint32_t* ticks, uint32_t* min_delta_us)
+{
+	uint32_t cycle_ticks;
+	uint32_t cycle_min_delta_us;
+
+	osMutexAcquire(int_data->mutex, osWaitForever);
+
+	cycle_ticks = int_data->cycle_ticks;
+	cycle_min_delta_us = int_data->cycle_min_delta_us;
+	int_data->cycle_ticks = 0;
+	int_data->cycle_min_delta_us = 0;
+
+	osMutexRelease(int_data->mutex);
+
+	if (ticks != NULL) {
+		*ticks = cycle_ticks;
+	}
+
+	if (min_delta_us != NULL) {
+		*min_delta_us = cycle_min_delta_us;
+	}
 
 }
 

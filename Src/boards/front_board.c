@@ -95,6 +95,7 @@ void DBF_Config(void)
 	SensorList[6] = odo;
 	SensorList[6].odo_data.l_data = &SensorList[0].wsp_data;
 	SensorList[6].odo_data.r_data = &SensorList[1].wsp_data;
+	SensorList[6].odo_data.debug_can_id = WSPD_DEBUG_CAN_ID;
 
 	SensorList[7] = accel_timer;
 	SensorList[7].accel_timer_data.l_data = &SensorList[0].wsp_data;

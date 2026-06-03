@@ -37,6 +37,7 @@
 /* CAN IDs -------------------------------------------------------------------*/
 #define WSP_FL_CAN_ID 				0x0DA10000
 #define WSP_FR_CAN_ID 				0x0DA11000
+#define WSPD_DEBUG_CAN_ID 			0x0DA100DB
 #define SHOCK_FL_CAN_ID 			0x0DA20000
 #define SHOCK_FR_CAN_ID 			0x0DA21000
 #define STEERING_ANGLE_CAN_ID 		0x0DA30000

@@ -30,6 +30,7 @@ static AccelTimer_Data_t* accel_timer_instance = NULL;
 
 /* Private Function Prototypes -----------------------------------------------*/
 static void WheelSpeed_PackData(WheelSpeed_Data_t* wsp_data, CAN_Message_t* msg);
+static void WspdDebug_PackData(Odo_Data_t* odo_data, CAN_Message_t* msg);
 static void AccelTimer_PackData(AccelTimer_Data_t* accel_timer_data, CAN_Message_t* msg);
 static void AccelTimer_PackDistanceData(AccelTimer_Data_t* accel_timer_data, CAN_Message_t* msg);
 static void AccelTimer_ResetRun(AccelTimer_Data_t* accel_timer_data);
@@ -39,6 +40,8 @@ static uint16_t AccelTimer_GetElapsedMs(uint32_t start_time_us, uint32_t finish_
 static uint16_t AccelTimer_GetDistanceFtHundredths(uint32_t ticks);
 static uint16_t AccelTimer_GetAverageDistanceFtHundredths(uint32_t l_ticks, uint32_t r_ticks);
 static uint8_t WheelSpeed_GetMphByte(wsp_type mph);
+static uint8_t WheelSpeed_GetCycleTicksByte(uint32_t cycle_ticks);
+static uint16_t WheelSpeed_GetCycleMinDeltaWord(uint32_t cycle_min_delta_us);
 static void AccelTimer_Lock(AccelTimer_Data_t* accel_timer_data);
 static void AccelTimer_Unlock(AccelTimer_Data_t* accel_timer_data);
 
@@ -52,9 +55,12 @@ static void AccelTimer_Unlock(AccelTimer_Data_t* accel_timer_data);
 void WheelSpeed_Init(WheelSpeed_Data_t* wsp_data)
 {
     Interrupt_InitData(&wsp_data->interrupt);
+    Interrupt_SetMinDelta(&wsp_data->interrupt, WSP_MIN_DELTA_US);
 
     wsp_data->rpm = 0;
     wsp_data->mph = 0;
+    wsp_data->cycle_ticks = 0;
+    wsp_data->cycle_min_delta_us = 0;
     wsp_data->valid = false;
 
 }
@@ -68,7 +74,7 @@ void WheelSpeed_Update(WheelSpeed_Data_t* wsp_data)
 {
 	uint32_t last_pulse_time;
 	uint32_t now;
-	uint32_t avg_delta;
+    uint32_t avg_delta;
 
     wsp_data->valid = false;
     wsp_data->timeout = false;
@@ -80,6 +86,8 @@ void WheelSpeed_Update(WheelSpeed_Data_t* wsp_data)
         Interrupt_ResetData(&wsp_data->interrupt);
         wsp_data->rpm = 0;
         wsp_data->mph = 0;
+        wsp_data->cycle_ticks = 0;
+        wsp_data->cycle_min_delta_us = 0;
         wsp_data->timeout = true;
         return;
     }
@@ -155,6 +163,38 @@ static void Odo_PackData(Odo_Data_t* odo_data, CAN_Message_t* msg)
 }
 
 /**
+  * @brief  Pack wheel speed debug data into CAN message
+  * @param  odo_data: Pointer to odometer data structure with left/right wheel data
+  * @param  msg: Pointer to CAN message structure
+  * @retval None
+  */
+static void WspdDebug_PackData(Odo_Data_t* odo_data, CAN_Message_t* msg)
+{
+    uint16_t l_min_delta;
+    uint16_t r_min_delta;
+
+    Interrupt_GetAndResetCycleStats(&odo_data->l_data->interrupt,
+        &odo_data->l_data->cycle_ticks,
+        &odo_data->l_data->cycle_min_delta_us);
+    Interrupt_GetAndResetCycleStats(&odo_data->r_data->interrupt,
+        &odo_data->r_data->cycle_ticks,
+        &odo_data->r_data->cycle_min_delta_us);
+
+    l_min_delta = WheelSpeed_GetCycleMinDeltaWord(odo_data->l_data->cycle_min_delta_us);
+    r_min_delta = WheelSpeed_GetCycleMinDeltaWord(odo_data->r_data->cycle_min_delta_us);
+
+    msg->data[0] = WheelSpeed_GetCycleTicksByte(odo_data->l_data->cycle_ticks);
+    msg->data[1] = WheelSpeed_GetCycleTicksByte(odo_data->r_data->cycle_ticks);
+    msg->data[2] = l_min_delta & 0xFF;
+    msg->data[3] = l_min_delta >> 8;
+    msg->data[4] = r_min_delta & 0xFF;
+    msg->data[5] = r_min_delta >> 8;
+    msg->data[6] = 0;
+    msg->data[7] = 0;
+
+}
+
+/**
   * @brief  Send odometer data CAN message
   * @param  odo_data: Pointer to odometer data structure
   * @param  can_id: CAN message ID
@@ -167,6 +207,12 @@ void Odo_SendCAN(Odo_Data_t* odo_data, uint32_t can_id)
 	msg.id = can_id;
 	Odo_PackData(odo_data, &msg);
 	CAN_SendMessage(&msg);
+
+	if (odo_data->debug_can_id != 0) {
+		msg.id = odo_data->debug_can_id;
+		WspdDebug_PackData(odo_data, &msg);
+		CAN_SendMessage(&msg);
+	}
 
 }
 
@@ -514,6 +560,36 @@ static uint8_t WheelSpeed_GetMphByte(wsp_type mph)
   }
 
   return (uint8_t)rounded_mph;
+
+}
+
+/**
+  * @brief  Get packed wheel speed cycle tick count byte
+  * @param  cycle_ticks: Accepted wheel speed ticks since last update cycle
+  * @retval Saturated cycle tick count byte
+  */
+static uint8_t WheelSpeed_GetCycleTicksByte(uint32_t cycle_ticks)
+{
+  if (cycle_ticks > UINT8_MAX) {
+    return UINT8_MAX;
+  }
+
+  return (uint8_t)cycle_ticks;
+
+}
+
+/**
+  * @brief  Get packed wheel speed cycle minimum delta word
+  * @param  cycle_min_delta_us: Shortest accepted pulse interval since last update cycle
+  * @retval Saturated cycle minimum delta word
+  */
+static uint16_t WheelSpeed_GetCycleMinDeltaWord(uint32_t cycle_min_delta_us)
+{
+  if (cycle_min_delta_us > UINT16_MAX) {
+    return UINT16_MAX;
+  }
+
+  return (uint16_t)cycle_min_delta_us;
 
 }
 

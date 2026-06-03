@@ -32,6 +32,7 @@
 #define WSP_FRONT_WHEEL_DIAMETER_IN 17.66f
 #define WSP_ROLLING_RADIUS 9 // Inches
 #define WSP_SPOKES 16
+#define WSP_MIN_DELTA_US 2000
 #define WSP_TIMEOUT_US 1000000
 
 #define ACCEL_TIMER_CMD_DISABLE 0
@@ -45,6 +46,8 @@ typedef struct {
 
     wsp_type rpm;
     wsp_type mph;
+    uint32_t cycle_ticks;
+    uint32_t cycle_min_delta_us;
 
     bool valid;
 
@@ -57,6 +60,7 @@ typedef struct {
 
 	WheelSpeed_Data_t* l_data;
 	WheelSpeed_Data_t* r_data;
+	uint32_t debug_can_id;
 
 } Odo_Data_t;
 

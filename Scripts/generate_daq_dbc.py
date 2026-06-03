@@ -25,6 +25,7 @@ FIRMWARE_CAN_IDS = {
 	"DBF_Status": 0x0DA00000,
 	"DBF_WSPD_FL": 0x0DA10000,
 	"DBF_WSPD_FR": 0x0DA11000,
+	"DBF_WSPD_Debug": 0x0DA100DB,
 	"DBF_Shock_FL": 0x0DA20000,
 	"DBF_Shock_FR": 0x0DA21000,
 	"DBF_Steering_Angle": 0x0DA30000,
@@ -80,6 +81,17 @@ MESSAGES = [
 			' SG_ DBF_WSPD_FR_Avg_Delta : 8|32@1+ (1.0,0.0) [0.0|4294967295.0] "us" Vector__XXX',
 			' SG_ DBF_WSPD_FR_RPM : 40|16@1- (1.0,0.0) [-6000.0|6000.0] "RPM" Vector__XXX',
 			' SG_ DBF_WSPD_FR_MPH : 56|8@1+ (1.0,0.0) [0.0|255.0] "MPH" Vector__XXX',
+		],
+	},
+	{
+		"name": "DBF_WSPD_Debug",
+		"node": "DBF",
+		"raw_id": FIRMWARE_CAN_IDS["DBF_WSPD_Debug"],
+		"signals": [
+			' SG_ DBF_WSPD_Debug_FL_Cycle_Ticks : 0|8@1+ (1.0,0.0) [0.0|255.0] "" Vector__XXX',
+			' SG_ DBF_WSPD_Debug_FR_Cycle_Ticks : 8|8@1+ (1.0,0.0) [0.0|255.0] "" Vector__XXX',
+			' SG_ DBF_WSPD_Debug_FL_Min_Delta : 16|16@1+ (1.0,0.0) [0.0|65535.0] "us" Vector__XXX',
+			' SG_ DBF_WSPD_Debug_FR_Min_Delta : 32|16@1+ (1.0,0.0) [0.0|65535.0] "us" Vector__XXX',
 		],
 	},
 	{
