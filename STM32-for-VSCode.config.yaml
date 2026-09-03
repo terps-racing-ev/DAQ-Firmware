@@ -73,6 +73,13 @@ excludes:
 
 # Include directories (directories containing .h or .hpp files)
 # If a CubeMX makefile is present it will automatically include the include directories from that makefile.
+# includeDirectories: 
+#   - Inc/**
+#   - Core/Inc/**
+#   - Core/Lib/**
+#   - Src/**
+#   - Core/Src/**
+#   - Core/Lib/**
 includeDirectories: 
   - Inc/**
   - Core/Inc/**
@@ -80,6 +87,15 @@ includeDirectories:
   - Src/**
   - Core/Src/**
   - Core/Lib/**
+  - Drivers/STM32L4xx_HAL_Driver/Inc/**
+  - Drivers/STM32L4xx_HAL_Driver/Inc/Legacy/**
+  - Drivers/CMSIS/Include/**
+  - Drivers/CMSIS/Device/ST/STM32L4xx/Include/**
+  - Middlewares/Third_Party/FreeRTOS/Source/include/**
+  - Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/**
+  - Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/**
+
+
 
 
 # Files that should be included in the compilation.
@@ -87,10 +103,20 @@ includeDirectories:
 # Glob patterns (https://www.wikiwand.com/en/Glob_(programming)) can be used.
 # Do mind that double stars are reserved in yaml
 # these should be escaped with a: \ or the name should be in double quotes e.g. "HARDWARE_DRIVER*.c"
+# sourceFiles:  
+#   - Src/**
+#   - Core/Src/**
+#   - Core/Lib/**
 sourceFiles:  
   - Src/**
   - Core/Src/**
   - Core/Lib/**
+  - Drivers/STM32L4xx_HAL_Driver/Src/*.c
+  - Middlewares/Third_Party/FreeRTOS/Source/*.c
+  - Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/**
+  - Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/**
+  - Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c
+
 
 
 # When no makefile is present it will show a warning pop-up.

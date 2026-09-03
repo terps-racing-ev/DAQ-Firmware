@@ -1,15 +1,18 @@
 #pragma once
-#include "moving_average.h"
+#include "main.h"
+#include <stdint.h>
 #include <stdbool.h>
-
-void RideHeight_Init(RideHeight_Data_t* rh_data);
-void RideHeight_UpdateTask(RideHeight_Data_t* rh_data);
-
+#include "stm32l4xx_hal_uart.h"
+#include "can_manager.h"
+#include "stdio.h"
 
 typedef struct {
     bool new_data;
-
+    
     uint16_t dist;
     uint16_t strength;
     uint16_t temp;
 } RideHeight_Data_t;
+
+void RideHeight_Init();
+// void RideHeight_UpdateTask(RideHeight_Data_t* rh_data);

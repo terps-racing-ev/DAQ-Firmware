@@ -1,15 +1,9 @@
 
 /* Includes ------------------------------------------------------------------*/
-
-#include <stdint.h>
 #include "ride_height.h"
-#include "stm32l4xx_hal_uart.h"
-#include "can_manager.h"
-
-#include "cmsis_os.h"
 
 /* Private Variables ---------------------------------------------------------*/
-extern UART_HandleTypeDef huart2;
+extern UART_HandleTypeDef huart1;
 uint8_t tof_data_buffer[8];
 uint8_t uart_rx_byte;
 uint8_t byte_idx = 0;
@@ -21,27 +15,21 @@ uint8_t byte_idx = 0;
 /* Private Function Prototypes -----------------------------------------------*/
 
 /* Function Implementations --------------------------------------------------*/
-typedef struct {
-
-}
-/**
-  * @brief  Initialize coolant temp data
-  * @param  ct_data: Pointer to coolant temp data structure
-  * @retval None
-  */
-void RideHeight_Init(RideHeight_Data_t* rh_data)
+void RideHeight_Init()
 {
+    printf("Enabling ride height...\r\n");
     // Ensure the ride height is in proper operation
-	HAL_UART_Transmit(&huart2, TOF_ENABLE_OUTPUT, 5);
-    HAL_UART_Transmit(&huart2, TOF_ENABLE_UART, 5);
-    HAL_UART_Transmit(&huart2, TOF_SAVE_FLASH, 5);
+	HAL_UART_Transmit(&huart1, TOF_ENABLE_OUTPUT, 5, 100);
+    HAL_UART_Transmit(&huart1, TOF_ENABLE_UART, 5, 100);
+    HAL_UART_Transmit(&huart1, TOF_SAVE_FLASH, 5, 100);
 
     // Receive 1 byte at a time
     HAL_UART_Receive_IT(&huart1, &uart_rx_byte, 1);
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if (huart->Instance != USART2) {
+    printf("CALLBACK CALLED\r\n");
+    if (huart->Instance != USART1) {
         goto reset_interrupt;
     }
 
@@ -52,7 +40,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     }
 
     if (byte_idx == 1 && uart_rx_byte != 0x59) {
-        byte_idx == 0;
+        byte_idx = 0;
         goto reset_interrupt;
     }
 
@@ -86,7 +74,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
 
 reset_interrupt:
-    HAL_UART_Receive_IT(&huart2, &uart_rx_byte, 1);
+    HAL_UART_Receive_IT(huart, &uart_rx_byte, 1);
 
 
 }

@@ -26,6 +26,7 @@
 #include "managers/interrupt_manager.h"
 #include "managers/config_manager.h"
 #include "managers/pwm_manager.h"
+#include "ride_height.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -188,6 +189,9 @@ int main(void)
   HAL_TIM_Base_Start(&htim2);
   /* USER CODE END 2 */
 
+  printf("Starting sensors...\r\n");
+
+  RideHeight_Init();
   /* Init scheduler */
   osKernelInitialize();
 
@@ -638,7 +642,7 @@ void LED_BlinkTask(void *argument)
   for(;;)
   {
 	  HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
-	  osDelay(500);
+	  osDelay(50);
   }
   /* USER CODE END 5 */
 }

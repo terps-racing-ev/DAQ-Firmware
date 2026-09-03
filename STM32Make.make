@@ -121,6 +121,7 @@ Src/managers/sensor_manager.c \
 Src/sensors/coolant_temp.c \
 Src/sensors/linear_pot.c \
 Src/sensors/pitot_tube.c \
+Src/sensors/ride_height.c \
 Src/sensors/steering_angle.c \
 Src/sensors/tach.c \
 Src/sensors/wheel_speed.c \
