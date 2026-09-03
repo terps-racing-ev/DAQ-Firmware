@@ -63,6 +63,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
         uint16_t strength = tof_data_buffer[5] << 8 & tof_data_buffer[4];
         uint16_t temp = tof_data_buffer[7] << 8 & tof_data_buffer[6];
 
+        printf("Distance: %u cm\n", (unsigned int) dist);
+
         CAN_Message_t msg;
         msg.id = 0x0DBFF000;
 
