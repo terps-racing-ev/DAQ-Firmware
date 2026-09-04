@@ -5,6 +5,8 @@
 #include "stm32l4xx_hal_uart.h"
 #include "can_manager.h"
 #include "stdio.h"
+#include "cmsis_os.h"
+#include <string.h>
 
 typedef struct {
     bool new_data;
@@ -15,4 +17,5 @@ typedef struct {
 } RideHeight_Data_t;
 
 void RideHeight_Init();
+void RideHeight_Task(void *argument);
 // void RideHeight_UpdateTask(RideHeight_Data_t* rh_data);

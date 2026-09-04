@@ -117,6 +117,13 @@ const osThreadAttr_t PWM_Manager_attributes = {
   .stack_size = sizeof(PWM_ManagerBuffer),
   .priority = (osPriority_t) osPriorityHigh,
 };
+/* Definitions for TOF Task */
+osThreadId_t rideHeightTaskHandle;
+const osThreadAttr_t rideHeightTask_attributes = {
+  .name = "rideHeightTask",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -172,7 +179,6 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -189,9 +195,6 @@ int main(void)
   HAL_TIM_Base_Start(&htim2);
   /* USER CODE END 2 */
 
-  printf("Starting sensors...\r\n");
-
-  RideHeight_Init();
   /* Init scheduler */
   osKernelInitialize();
 
@@ -212,6 +215,8 @@ int main(void)
   Config_Init();
   Interrupt_Manager_Init();
   CAN_Manager_Init();
+  RideHeight_Init();
+  
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
@@ -232,6 +237,9 @@ int main(void)
   if (PWM_ACTIVE) {
 	  PWM_ManagerHandle = osThreadNew(PWM_ManagerTask, NULL, &PWM_Manager_attributes);
   }
+
+    /* creation of rideHeightTask */
+  rideHeightTaskHandle = osThreadNew(RideHeight_Task, NULL, &rideHeightTask_attributes);
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
