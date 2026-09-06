@@ -37,6 +37,10 @@ FIRMWARE_CAN_IDS = {
 	"DBL_Status": 0x0DB00000,
 	"DBL_WSPD_BL": 0x0DB10000,
 	"DBL_Shock_BL": 0x0DB20000,
+	"DBL_PITOT_SIDEPOD": 0x0DB40000,
+	"DBL_PITOT_FW": 0x0DB41000,
+	"DBL_PITOT_RW": 0x0DB42000,
+	"DBL_PITOT_NOSE": 0x0DB43000,
 	"DBL_CT_Swirl": 0x0DB50000,
 	"DBL_CT_Rad1": 0x0DB51000,
 	"DBL_CT_Rad2": 0x0DB52000,
@@ -44,6 +48,10 @@ FIRMWARE_CAN_IDS = {
 	"DBR_Status": 0x0DC00000,
 	"DBR_WSPD_BR": 0x0DC10000,
 	"DBR_Shock_BR": 0x0DC20000,
+	"DBR_CT_RAD1": 0x0DC50000,
+	"DBR_CT_MOTOR": 0x0DC51000,
+	"DBR_CT_INV": 0x0DC52000,
+	"DBR_CT_RAD2": 0x0DC53000,
 	"DBR_CT_Motor": 0x0DC50000,
 	"DBR_CT_Inv": 0x0DC51000,
 	"DBR_Tach_R": 0x0DC60000,
@@ -342,6 +350,53 @@ MESSAGES = [
 ]
 
 
+def _rear_message(name, node, raw_id, signals):
+	return {"name": name, "node": node, "raw_id": raw_id, "signals": signals}
+
+
+def _pitot_signals(prefix):
+	return [
+		f' SG_ {prefix}_Valid : 0|1@1+ (1.0,0.0) [0.0|1.0] "" Vector__XXX',
+		f' SG_ {prefix}_ADC_Err : 1|1@1+ (1.0,0.0) [0.0|1.0] "" Vector__XXX',
+		f' SG_ {prefix}_Raw_mV : 8|16@1- (0.001,0.0) [-1000.0|1000.0] "V" Vector__XXX',
+		f' SG_ {prefix}_Filt_mV : 24|16@1- (0.001,0.0) [-1000.0|1000.0] "V" Vector__XXX',
+		f' SG_ {prefix}_MPH : 40|16@1+ (0.01,0.0) [0.0|655.35] "MPH" Vector__XXX',
+	]
+
+
+def _coolant_signals(prefix):
+	return [
+		f' SG_ {prefix}_Valid : 0|1@1+ (1.0,0.0) [0.0|1.0] "" Vector__XXX',
+		f' SG_ {prefix}_ADC_Err : 1|1@1+ (1.0,0.0) [0.0|1.0] "" Vector__XXX',
+		f' SG_ {prefix}_Out_of_Range : 2|1@1+ (1.0,0.0) [0.0|1.0] "" Vector__XXX',
+		f' SG_ {prefix}_Raw_mV : 8|16@1- (0.001,0.0) [-1000.0|1000.0] "V" Vector__XXX',
+		f' SG_ {prefix}_Filt_mV : 24|16@1- (0.001,0.0) [-1000.0|1000.0] "V" Vector__XXX',
+		f' SG_ {prefix}_Deg_C : 40|8@1- (1.0,0.0) [-40.0|120.0] "C" Vector__XXX',
+	]
+
+
+REAR_MESSAGES = [
+	_rear_message("DBL_PITOT_SIDEPOD", "DBL", FIRMWARE_CAN_IDS["DBL_PITOT_SIDEPOD"], _pitot_signals("DBL_PITOT_SIDEPOD")),
+	_rear_message("DBL_PITOT_FW", "DBL", FIRMWARE_CAN_IDS["DBL_PITOT_FW"], _pitot_signals("DBL_PITOT_FW")),
+	_rear_message("DBL_PITOT_RW", "DBL", FIRMWARE_CAN_IDS["DBL_PITOT_RW"], _pitot_signals("DBL_PITOT_RW")),
+	_rear_message("DBL_PITOT_NOSE", "DBL", FIRMWARE_CAN_IDS["DBL_PITOT_NOSE"], _pitot_signals("DBL_PITOT_NOSE")),
+	_rear_message("DBR_CT_RAD1", "DBR", FIRMWARE_CAN_IDS["DBR_CT_RAD1"], _coolant_signals("DBR_CT_RAD1")),
+	_rear_message("DBR_CT_MOTOR", "DBR", FIRMWARE_CAN_IDS["DBR_CT_MOTOR"], _coolant_signals("DBR_CT_MOTOR")),
+	_rear_message("DBR_CT_INV", "DBR", FIRMWARE_CAN_IDS["DBR_CT_INV"], _coolant_signals("DBR_CT_INV")),
+	_rear_message("DBR_CT_RAD2", "DBR", FIRMWARE_CAN_IDS["DBR_CT_RAD2"], _coolant_signals("DBR_CT_RAD2")),
+]
+
+
+LEGACY_REAR_NAMES = {
+	"DBL_CT_Swirl", "DBL_CT_Rad1", "DBL_CT_Rad2", "DBL_Tach_L",
+	"DBR_CT_Motor", "DBR_CT_Inv", "DBR_Tach_R",
+}
+
+
+def active_messages():
+	return [message for message in MESSAGES if message["name"] not in LEGACY_REAR_NAMES] + REAR_MESSAGES
+
+
 VALUE_TABLES = [
 	'VAL_ 2376138752 DBF_WSPD_FL_Valid 0 "FALSE" 1 "TRUE" ;',
 	'VAL_ 2376138752 DBF_WSPD_FL_Timeout 0 "FALSE" 1 "TRUE" ;',
@@ -395,6 +450,18 @@ VALUE_TABLES = [
 ]
 
 
+def active_value_tables():
+	lines = [line for line in VALUE_TABLES if "DBL_" not in line and "DBR_" not in line]
+	for message in REAR_MESSAGES:
+		for signal in message["signals"]:
+			signal_name = signal.split()[1]
+			if any(signal_name.endswith(suffix) for suffix in ("_Valid", "_ADC_Err", "_Out_of_Range")):
+				lines.append(
+					f'VAL_ {dbc_id(message["raw_id"])} {signal_name} 0 "FALSE" 1 "TRUE" ;'
+				)
+	return lines
+
+
 COMMENTS = [
 	f'CM_ BO_ {dbc_id(FIRMWARE_CAN_IDS["DBF_Accel_Timer_Cmd"])} "Front-board acceleration timer command. Send this extended frame to 0x0DA000C3 for DBF: command 0 disables the timer, 1 clears prior results and arms the timer, and 2 clears results while preserving the current enabled state.";',
 	f'CM_ BO_ {dbc_id(FIRMWARE_CAN_IDS["DBF_Accel_Timer"])} "Front-board acceleration timer result/status. After enable, the first FL or FR wheel-speed pulse starts timing. The timer uses a 17.66 in front tire diameter, 16 wheel-speed pulses per revolution, and a 246 ft target. Completion bits indicate valid FL-only, FR-only, and averaged-wheel elapsed times in milliseconds.";',
@@ -406,7 +473,7 @@ def verify_message_ids() -> None:
 	"""Ensure every master-derived message ID still matches firmware IDs."""
 	seen_names = set()
 
-	for message in MESSAGES:
+	for message in active_messages():
 		name = message["name"]
 		raw_id = message["raw_id"]
 		expected_raw_id = FIRMWARE_CAN_IDS[name]
@@ -419,7 +486,7 @@ def verify_message_ids() -> None:
 
 		seen_names.add(name)
 
-	missing = set(FIRMWARE_CAN_IDS) - seen_names
+	missing = (set(FIRMWARE_CAN_IDS) - LEGACY_REAR_NAMES) - seen_names
 	if missing:
 		missing_names = ", ".join(sorted(missing))
 		raise ValueError(f"Missing DBC message definitions for: {missing_names}")
@@ -439,14 +506,14 @@ def generate_dbc() -> str:
 	lines.append('BU_: DBF DBL DBR Vector__XXX')
 	lines.append('')
 
-	for message in MESSAGES:
+	for message in active_messages():
 		lines.append(
 			f'BO_ {dbc_id(message["raw_id"])} {message["name"]}: 8 {message["node"]}'
 		)
 		lines.extend(message["signals"])
 		lines.append('')
 
-	lines.extend(VALUE_TABLES)
+	lines.extend(active_value_tables())
 	lines.extend(COMMENTS)
 
 	return '\n'.join(lines)

@@ -34,6 +34,13 @@ void DBL_Config(void)
 	    .can_id = WSP_BL_CAN_ID
 	};
 
+	Sensor_t pitot_sidepod = {
+	    .type = PITOT_TUBE,
+		.adc_channel = PITOT_SIDEPOD_ADC_CHANNEL,
+	    .pitot_data = {0},
+	    .can_id = PITOT_SIDEPOD_CAN_ID
+	};
+
 	Sensor_t shock_bl = {
 	    .type = LINEAR_POT,
 		.adc_channel = SHOCK_BL_ADC_CHANNEL,
@@ -41,43 +48,34 @@ void DBL_Config(void)
 	    .can_id = SHOCK_BL_CAN_ID
 	};
 
-	Sensor_t ct_swirl = {
-		.type = COOLANT_TEMP,
-		.adc_channel = CT_SWIRL_ADC_CHANNEL,
-		.ct_data = {0},
-		.can_id = CT_SWIRL_CAN_ID
+	Sensor_t pitot_fw = {
+		.type = PITOT_TUBE,
+		.adc_channel = PITOT_FW_ADC_CHANNEL,
+		.pitot_data = {0},
+		.can_id = PITOT_FW_CAN_ID
 	};
 
-	Sensor_t ct_rad1 = {
-		.type = COOLANT_TEMP,
-		.adc_channel = CT_RAD1_ADC_CHANNEL,
-	    .ct_data = {0},
-	    .can_id = CT_RAD1_CAN_ID
+	Sensor_t pitot_rw = {
+		.type = PITOT_TUBE,
+		.adc_channel = PITOT_RW_ADC_CHANNEL,
+	    .pitot_data = {0},
+	    .can_id = PITOT_RW_CAN_ID
 	};
 
-	Sensor_t ct_rad2 = {
-		.type = COOLANT_TEMP,
-		.adc_channel = CT_RAD2_ADC_CHANNEL,
-		.ct_data = {0},
-		.can_id = CT_RAD2_CAN_ID
-	};
-
-	Sensor_t tach_l = {
-		.type = TACH,
-		.gpio_pin = TACH_L_GPIO_PIN,
-		.tach_data = {0},
-		.can_id = TACH_L_CAN_ID
+	Sensor_t pitot_nose = {
+		.type = PITOT_TUBE,
+		.adc_channel = PITOT_NOSE_ADC_CHANNEL,
+		.pitot_data = {0},
+		.can_id = PITOT_NOSE_CAN_ID
 	};
 
 	SensorList[0] = wsp_bl;
 	Interrupt_ConfigPin(SensorList[0].gpio_pin, &SensorList[0].wsp_data.interrupt);
 
-	SensorList[1] = shock_bl;
-	SensorList[2] = ct_swirl;
-	SensorList[3] = ct_rad1;
-	SensorList[4] = ct_rad2;
-
-	SensorList[5] = tach_l;
-	Interrupt_ConfigPin(SensorList[5].gpio_pin, &SensorList[5].tach_data.interrupt);
+	SensorList[1] = pitot_sidepod;
+	SensorList[2] = shock_bl;
+	SensorList[3] = pitot_fw;
+	SensorList[4] = pitot_rw;
+	SensorList[5] = pitot_nose;
 
 }

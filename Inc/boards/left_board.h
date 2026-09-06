@@ -27,20 +27,20 @@
 #define DBL_NUM_SENSORS 		6
 
 /* Pinout --------------------------------------------------------------------*/
-#define WSP_BL_GPIO_PIN 		GPIO_PIN_0
-#define SHOCK_BL_ADC_CHANNEL 	ADC_CHANNEL_8
-#define CT_SWIRL_ADC_CHANNEL 	ADC_CHANNEL_9
-#define CT_RAD1_ADC_CHANNEL 	ADC_CHANNEL_10
-#define CT_RAD2_ADC_CHANNEL 	ADC_CHANNEL_11
-#define TACH_L_GPIO_PIN 		GPIO_PIN_1
+#define WSP_BL_GPIO_PIN 		      GPIO_PIN_0
+#define PITOT_SIDEPOD_ADC_CHANNEL ADC_CHANNEL_6
+#define SHOCK_BL_ADC_CHANNEL 	    ADC_CHANNEL_8
+#define PITOT_FW_ADC_CHANNEL 	    ADC_CHANNEL_9
+#define PITOT_RW_ADC_CHANNEL 	    ADC_CHANNEL_10
+#define PITOT_NOSE_ADC_CHANNEL 	  ADC_CHANNEL_11
 
 /* CAN IDs -------------------------------------------------------------------*/
-#define WSP_BL_CAN_ID 			0x0DB10000
-#define SHOCK_BL_CAN_ID 		0x0DB20000
-#define CT_SWIRL_CAN_ID 		0x0DB50000
-#define CT_RAD1_CAN_ID 			0x0DB51000
-#define CT_RAD2_CAN_ID 			0x0DB52000
-#define TACH_L_CAN_ID 			0x0DB60000
+#define WSP_BL_CAN_ID 			  0x0DB10000
+#define PITOT_SIDEPOD_CAN_ID  0x0DB40000
+#define SHOCK_BL_CAN_ID 		  0x0DB20000
+#define PITOT_FW_CAN_ID 		  0x0DB41000
+#define PITOT_RW_CAN_ID 			0x0DB42000
+#define PITOT_NOSE_CAN_ID 		0x0DB43000
 
 /* External Variables --------------------------------------------------------*/
 extern Sensor_t SensorList[MAX_NUM_SENSORS];
