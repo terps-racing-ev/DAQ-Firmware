@@ -24,7 +24,7 @@
 #include <stdbool.h>
 
 /* Defines -------------------------------------------------------------------*/
-#define SA_ZERO_MV 2500 // Zero point voltage based on calibration
+#define SA_ZERO_MV 1487 // Zero point voltage based on straight-wheel calibration
 #define SA_SWING_MV 2500 // Voltage range in either direction
 #define SA_MAX_MV 5000
 #define SA_SWING_ANGLE 1800 // 180 degrees * 10

@@ -62,13 +62,6 @@ void DBF_Config(void)
 	    .can_id = STEERING_ANGLE_CAN_ID
 	};
 
-	Sensor_t pitot = {
-		.type = PITOT_TUBE,
-		.adc_channel = PITOT_ADC_CHANNEL,
-	    .pitot_data = {0},
-	    .can_id = PITOT_CAN_ID
-	};
-
 	Sensor_t odo = {
 		.type = ODO,
 		.odo_data = {0},
@@ -90,16 +83,15 @@ void DBF_Config(void)
 	SensorList[2] = shock_fl;
 	SensorList[3] = shock_fr;
 	SensorList[4] = steering_angle;
-	SensorList[5] = pitot;
 
-	SensorList[6] = odo;
-	SensorList[6].odo_data.l_data = &SensorList[0].wsp_data;
-	SensorList[6].odo_data.r_data = &SensorList[1].wsp_data;
-	SensorList[6].odo_data.debug_can_id = WSPD_DEBUG_CAN_ID;
+	SensorList[5] = odo;
+	SensorList[5].odo_data.l_data = &SensorList[0].wsp_data;
+	SensorList[5].odo_data.r_data = &SensorList[1].wsp_data;
+	SensorList[5].odo_data.debug_can_id = WSPD_DEBUG_CAN_ID;
 
-	SensorList[7] = accel_timer;
-	SensorList[7].accel_timer_data.l_data = &SensorList[0].wsp_data;
-	SensorList[7].accel_timer_data.r_data = &SensorList[1].wsp_data;
-	SensorList[7].accel_timer_data.distance_can_id = ACCEL_TIMER_DISTANCE_CAN_ID;
+	SensorList[6] = accel_timer;
+	SensorList[6].accel_timer_data.l_data = &SensorList[0].wsp_data;
+	SensorList[6].accel_timer_data.r_data = &SensorList[1].wsp_data;
+	SensorList[6].accel_timer_data.distance_can_id = ACCEL_TIMER_DISTANCE_CAN_ID;
 
 }

@@ -24,15 +24,14 @@
 
 /* Defines -------------------------------------------------------------------*/
 #define DBF_BOARD_ID 				0x0A
-#define DBF_NUM_SENSORS 			8 // dummy sensors for odometer and acceleration timer
+#define DBF_NUM_SENSORS 			7 // dummy sensors for odometer and acceleration timer
 
 /* Pinout --------------------------------------------------------------------*/
 #define WSP_FL_GPIO_PIN 			GPIO_PIN_0
 #define WSP_FR_GPIO_PIN 			GPIO_PIN_1
-#define SHOCK_FL_ADC_CHANNEL 		ADC_CHANNEL_8
+#define SHOCK_FL_ADC_CHANNEL 		ADC_CHANNEL_11
 #define SHOCK_FR_ADC_CHANNEL 		ADC_CHANNEL_9
 #define STEERING_ANGLE_ADC_CHANNEL 	ADC_CHANNEL_10
-#define PITOT_ADC_CHANNEL 			ADC_CHANNEL_11
 
 /* CAN IDs -------------------------------------------------------------------*/
 #define WSP_FL_CAN_ID 				0x0DA10000

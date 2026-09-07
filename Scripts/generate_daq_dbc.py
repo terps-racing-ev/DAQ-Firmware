@@ -34,6 +34,7 @@ FIRMWARE_CAN_IDS = {
 	"DBF_Accel_Timer": 0x0DA80000,
 	"DBF_Accel_Timer_Distance": 0x0DA81000,
 	"DBF_ODO_LR": 0x0DA90000,
+	"DBF_Lidar": 0x0DAA0000,
 	"DBL_Status": 0x0DB00000,
 	"DBL_WSPD_BL": 0x0DB10000,
 	"DBL_Shock_BL": 0x0DB20000,
@@ -186,6 +187,16 @@ MESSAGES = [
 		"signals": [
 			' SG_ FR_Odo : 0|32@1+ (1.0,0.0) [0.0|4294967295.0] "" Vector__XXX',
 			' SG_ FL_Odo : 32|32@1+ (1.0,0.0) [0.0|4294967295.0] "" Vector__XXX',
+		],
+	},
+	{
+		"name": "DBF_Lidar",
+		"node": "DBF",
+		"raw_id": FIRMWARE_CAN_IDS["DBF_Lidar"],
+		"signals": [
+			' SG_ Lidar_Height : 0|16@1+ (1.0,0.0) [0.0|65535.0] "" Vector__XXX',
+			' SG_ Lidar_Strength : 16|16@1+ (1.0,0.0) [0.0|65535.0] "" Vector__XXX',
+			' SG_ Lidar_Temp : 32|16@1+ (1.0,0.0) [0.0|65535.0] "" Vector__XXX',
 		],
 	},
 	{
